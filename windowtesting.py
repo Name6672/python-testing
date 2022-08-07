@@ -1,7 +1,7 @@
 #import required libraries
 import tkinter as tk
 import pygame
-from unicodedata import name
+
 
 
 #main function standard python stuff
