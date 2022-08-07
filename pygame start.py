@@ -29,6 +29,8 @@ def main():
           print('clicky')
           
     ticks += 1
+    pygame.display.flip()
+    pygame.display.update()
     clock.tick(fps)
   
   print('exiting main')
