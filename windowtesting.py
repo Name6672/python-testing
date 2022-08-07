@@ -1,8 +1,5 @@
 #import required libraries
 import tkinter as tk
-import pygame
-
-
 
 #main function standard python stuff
 def main():
