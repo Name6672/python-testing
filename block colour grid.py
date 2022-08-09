@@ -62,7 +62,7 @@ def main():
   
   colour_grid = BlockGrid(horizontal_blocks,vertical_blocks,False)
   # colour_grid.set_block(0,0,(255,0,0))
-  # make_checker_board(colour_grid)
+  make_checker_board(colour_grid)
   print(colour_grid.blocks)
   
   def change_pix_to_pos(pix:int):
@@ -80,6 +80,7 @@ def main():
   t = 0
   ticks = 0
   mouse_pos = (0,0)
+  mouse_down = False
   
   running = True
   while running:
@@ -90,13 +91,22 @@ def main():
     for event in pygame.event.get():
       if event.type == pygame.MOUSEMOTION:
         mouse_pos = pygame.mouse.get_pos()
+        if mouse_down:
+          pos = change_pix_to_pos(mouse_pos)
+          if colour_grid.get_block(pos[0],pos[1]) != set_to:
+            colour_grid.set_block(pos[0],pos[1],set_to)
       elif event.type == pygame.MOUSEBUTTONDOWN:
         if event.button == 1:
           pos = change_pix_to_pos(mouse_pos)
           print('mouse pos: ' + str(mouse_pos))
           print('pos: ' + str(pos))
           print('pix: ' + str(change_pos_to_pix(pos)))
-          colour_grid.set_block(pos[0],pos[1],not colour_grid.get_block(pos[0],pos[1]))
+          set_to = not colour_grid.get_block(pos[0],pos[1])
+          mouse_down = True
+          colour_grid.set_block(pos[0],pos[1],set_to)
+      elif event.type == pygame.MOUSEBUTTONUP:
+        if event.button == 1:
+          mouse_down = False
           
       elif event.type == pygame.QUIT:
         pygame.quit()
