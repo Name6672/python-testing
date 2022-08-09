@@ -3,8 +3,8 @@ import utilities
 import math
 
 #globals
-screen_size = width, height = (600,400)
-fps = 60
+screen_size = width, height = (800,800)
+fps = 10000
 background_colour = 0x000000
 pygame.init()
 screen = pygame.display.set_mode(screen_size)
@@ -56,7 +56,7 @@ def main():
         
     
   
-  block_size = 20
+  block_size = 100
   vertical_blocks = int(height/block_size)
   horizontal_blocks = int(width/block_size)
   
