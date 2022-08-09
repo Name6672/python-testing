@@ -52,10 +52,7 @@ def main():
     hori_blocks,vert_blocks = grid.number_of_blocks()
     for col in range(vert_blocks):
       for block in range(int(hori_blocks/vert_blocks)):
-        if utilities.is_even(col) ^ utilities.is_even(block):
-          grid.set_block(block,col,False)
-        else:
-          grid.set_block(block,col,True)
+        grid.set_block(block,col,utilities.is_even(col) ^ utilities.is_even(block))
         
     
   
@@ -63,9 +60,9 @@ def main():
   vertical_blocks = int(height/block_size)
   horizontal_blocks = int(width/block_size)
   
-  colour_grid = BlockGrid(horizontal_blocks,vertical_blocks,(0,255,0))
+  colour_grid = BlockGrid(horizontal_blocks,vertical_blocks,False)
   # colour_grid.set_block(0,0,(255,0,0))
-  make_checker_board(colour_grid)
+  # make_checker_board(colour_grid)
   print(colour_grid.blocks)
   
   def change_pix_to_pos(pix:int):
