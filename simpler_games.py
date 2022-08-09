@@ -767,7 +767,7 @@ def main():
       pos_x = math.floor(pix[0]/20)
       pos_y = math.floor(pix[1]/20)
       return (pos_x,pos_y)
-    def change_pos_to_pix(pos:int,centred:bool):
+    def change_pos_to_pix(pos:int,centred:bool=False):
       pix_x = pos[0]*20
       pix_y = pos[1]*20
       if centred:

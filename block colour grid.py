@@ -1,5 +1,6 @@
 import pygame
 import utilities 
+import math
 
 #globals
 screen_size = width, height = (600,400)
@@ -35,13 +36,27 @@ class BlockGrid:
 
 def main():
   
-  def colour_blocks(surf,grid:BlockGrid,blocksize):
+  def colour_blocks(surf,grid:BlockGrid,blocksize,black_white:bool=False):
     hori_blocks,vert_blocks = grid.number_of_blocks()
     for col in range(vert_blocks):
       for block in range(int(hori_blocks/vert_blocks)):
         draw_area = pygame.Rect((blocksize*block,blocksize*col),(blocksize,blocksize))
-        block_colour = grid.get_block(block,col)
+        block_colour = (0,0,0)
+        if not black_white:
+          block_colour = grid.get_block(block,col)
+        elif grid.get_block(block,col):
+          block_colour = (255,255,255)
         pygame.draw.rect(surf,block_colour,draw_area)
+        
+  def make_checker_board(grid:BlockGrid):
+    hori_blocks,vert_blocks = grid.number_of_blocks()
+    for col in range(vert_blocks):
+      for block in range(int(hori_blocks/vert_blocks)):
+        if utilities.is_even(col) ^ utilities.is_even(block):
+          grid.set_block(block,col,False)
+        else:
+          grid.set_block(block,col,True)
+        
     
   
   block_size = 20
@@ -49,9 +64,21 @@ def main():
   horizontal_blocks = int(width/block_size)
   
   colour_grid = BlockGrid(horizontal_blocks,vertical_blocks,(0,255,0))
-  colour_grid.set_block(0,0,(255,0,0))
+  # colour_grid.set_block(0,0,(255,0,0))
+  make_checker_board(colour_grid)
   print(colour_grid.blocks)
   
+  def change_pix_to_pos(pix:int):
+    pos_x = math.floor(pix[0]/block_size)
+    pos_y = math.floor(pix[1]/block_size)
+    return (pos_x,pos_y)
+  def change_pos_to_pix(pos:int,centred:bool=False):
+    pix_x = pos[0]*block_size
+    pix_y = pos[1]*block_size
+    if centred:
+      pix_x+=block_size/2
+      pix_y+=block_size/2
+    return (pix_x,pix_y)
   
   t = 0
   ticks = 0
@@ -59,7 +86,7 @@ def main():
   
   running = True
   while running:
-    # screen.fill(background_colour)
+    screen.fill(background_colour)
     # utilities.text_to_screen(screen,'Hello, World!',(width/2,height/2),background=True)
     dt = clock.get_time()/1000
     t+=dt
@@ -68,9 +95,16 @@ def main():
         mouse_pos = pygame.mouse.get_pos()
       elif event.type == pygame.MOUSEBUTTONDOWN:
         if event.button == 1:
-          print('clicky')
+          pos = change_pix_to_pos(mouse_pos)
+          print('mouse pos: ' + str(mouse_pos))
+          print('pos: ' + str(pos))
+          print('pix: ' + str(change_pos_to_pix(pos)))
+          colour_grid.set_block(pos[0],pos[1],not colour_grid.get_block(pos[0],pos[1]))
+          
+      elif event.type == pygame.QUIT:
+        pygame.quit()
     
-    colour_blocks(screen,colour_grid,block_size)
+    colour_blocks(screen,colour_grid,block_size,True)
           
     pygame.display.flip()
     pygame.display.update()
