@@ -56,7 +56,7 @@ def main():
         
     
   
-  block_size = 100
+  block_size = 10
   vertical_blocks = int(height/block_size)
   horizontal_blocks = int(width/block_size)
   
