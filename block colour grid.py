@@ -1,3 +1,4 @@
+import sys
 import pygame
 import utilities 
 import math
@@ -10,6 +11,8 @@ pygame.init()
 screen = pygame.display.set_mode(screen_size)
 
 clock = pygame.time.Clock()
+
+
 
 class BlockGrid:
   def __init__(self,hori_blocks,vert_blocks,default_value=0):
@@ -33,28 +36,50 @@ class BlockGrid:
       horizontal += len(self.blocks[col])
     return horizontal,vertical
 
+def save_grid(grid:BlockGrid):
+  hori_blocks,vert_blocks = grid.number_of_blocks()
+  with open('grid_saved_output.txt','w') as file:
+    lines = []
+    for col in range(vert_blocks):
+      line = ''
+      for block in range(int(hori_blocks/vert_blocks)):
+        line += (' <' + str(grid.get_block(block,col)) + '> ')
+      lines.append((line + '\n'))
+    file.writelines(lines)
+    file.close()
 
 def main():
   
   checker_colour_dict = {
-    True:(0,255,0),
-    False:(255,0,0)
+    True:(175,100,100),
+    False:(0,150,0)
   }
   
-  def colour_blocks(surf,grid:BlockGrid,blocksize):
+  def dist(pos_1,pos_2):
+    x1,y1 = pos_1
+    x2,y2 = pos_2
+    x = x2 - x1
+    y = y2 - y1
+    return x,y
+  
+  def colour_blocks(surf,grid:BlockGrid,blocksize,cam_pos:tuple = (40,40)):
     hori_blocks,vert_blocks = grid.number_of_blocks()
+    cam_x,cam_y = change_pos_to_pix(cam_pos)
     for col in range(vert_blocks):
       for block in range(int(hori_blocks/vert_blocks)):
-        draw_area = pygame.Rect((blocksize*block,blocksize*col),(blocksize,blocksize))
-        block_colour = (0,0,0)
-        block_value = grid.get_block(block,col)
-        if type(block_value) == type(True):
-          block_colour = checker_colour_dict[block_value]
-        else:
-          block_colour = block_value
-        pygame.draw.rect(surf,block_colour,draw_area)
+        x_dist,y_dist = dist((block - camera_width/2,col - camera_height/2),cam_pos)
+        if abs(x_dist) < (camera_width/2 + 2) and abs(y_dist) < (camera_height/2 + 2):
+          draw_area = pygame.Rect(((blocksize*block) - cam_x,(blocksize*col)- cam_y),(blocksize,blocksize))
+          block_colour = (0,0,0)
+          block_value = grid.get_block(block,col)
+          if type(block_value) == type(True):
+            block_colour = checker_colour_dict[block_value]
+          else:
+            block_colour = block_value
+          pygame.draw.rect(surf,block_colour,draw_area)
+
         
-  def make_checker_board(grid:BlockGrid):
+  def make_checker_board(grid:BlockGrid): #deprecated
     total_blocks,vert_blocks = grid.number_of_blocks()
     hori_blocks = int(total_blocks/vert_blocks)
     for col in range(vert_blocks):
@@ -63,18 +88,29 @@ def main():
           grid.set_block(block,col,(0,0,255))
         else:
           grid.set_block(block,col,utilities.is_even(col) ^ utilities.is_even(block))
-        
-        
-    
+          
+  def make_game_board(grid:BlockGrid):
+    total_blocks,vert_blocks = grid.number_of_blocks()
+    hori_blocks = int(total_blocks/vert_blocks)
+    for col in range(vert_blocks):
+      for block in range(hori_blocks):
+        if utilities.is_border(block,col,hori_blocks,vert_blocks):
+          grid.set_block(block,col,(0,0,0))
+        else:
+          grid.set_block(block,col,False)
+          if utilities.random_true_or_false() and utilities.random_true_or_false() and utilities.random_true_or_false() and utilities.random_true_or_false():
+            grid.set_block(block,col,True)
   
   block_size = 20
-  vertical_blocks = int(height/block_size)
-  horizontal_blocks = int(width/block_size)
+  vertical_blocks = int(6)
+  horizontal_blocks = int(6)
+  
+  camera_size = camera_width,camera_height = (width/block_size,height/block_size)
   
   colour_grid = BlockGrid(horizontal_blocks,vertical_blocks,False)
   # colour_grid.set_block(0,0,(255,0,0))
-  make_checker_board(colour_grid)
-  print(colour_grid.blocks)
+  make_game_board(colour_grid)
+  # print(colour_grid.blocks)
   
   def change_pix_to_pos(pix:int):
     pos_x = math.floor(pix[0]/block_size)
@@ -92,41 +128,82 @@ def main():
   ticks = 0
   mouse_pos = (0,0)
   mouse_down = False
-  
-  running = True
   total_blocks,vert_blocks = colour_grid.number_of_blocks()
   hori_blocks = int(total_blocks/vert_blocks)
+  
+  camera_pos = (hori_blocks/2,vert_blocks/2)
+  
+  running = True
   while running:
     screen.fill(background_colour)
     # utilities.text_to_screen(screen,'Hello, World!',(width/2,height/2),background=True)
     dt = clock.get_time()/1000
     t+=dt
+    cam_x, cam_y = camera_pos
+    
     for event in pygame.event.get():
       if event.type == pygame.MOUSEMOTION:
         mouse_pos = pygame.mouse.get_pos()
         if mouse_down:
           pos = change_pix_to_pos(mouse_pos)
+          pos = (pos[0] + cam_x, pos[1] + cam_y)
           if colour_grid.get_block(pos[0],pos[1]) != set_to and not utilities.is_border(pos[0],pos[1],hori_blocks,vert_blocks):
             colour_grid.set_block(pos[0],pos[1],set_to)
       elif event.type == pygame.MOUSEBUTTONDOWN:
         if event.button == 1:
           pos = change_pix_to_pos(mouse_pos)
+          pos = (pos[0] + cam_x, pos[1] + cam_y)
+          block_val = colour_grid.get_block(pos[0],pos[1])
+          border = utilities.is_border(pos[0],pos[1],hori_blocks,vert_blocks)
+          print('\n')
           print('mouse pos: ' + str(mouse_pos))
           print('pos: ' + str(pos))
           print('pix: ' + str(change_pos_to_pix(pos)))
-          print(f'')
-          set_to = not colour_grid.get_block(pos[0],pos[1])
+          print(f'border: {border}')
+          if type(block_val) == type(True):
+            print(f'value: {checker_colour_dict[block_val]}')
+          else:
+            print(f'value: {block_val}')
+          set_to = not block_val
           mouse_down = True
-          if not utilities.is_border(pos[0],pos[1],hori_blocks,vert_blocks):
+          if not border:
             colour_grid.set_block(pos[0],pos[1],set_to)
       elif event.type == pygame.MOUSEBUTTONUP:
         if event.button == 1:
           mouse_down = False
           
       elif event.type == pygame.QUIT:
+        save_grid(colour_grid)
         pygame.quit()
+        sys.exit()
+        
+    keys = pygame.key.get_pressed()
+    new_cam_x, new_cam_y = camera_pos
+    if keys[pygame.K_w]:
+      new_cam_y -= 1
+    if keys[pygame.K_s]:
+      new_cam_y += 1
+
+    if keys[pygame.K_a]:
+      new_cam_x -= 1
+    if keys[pygame.K_d]:
+      new_cam_x += 1
+      
+    if new_cam_y < 0:
+      new_cam_y = 0
+    elif new_cam_y > vert_blocks - (camera_height):
+      new_cam_y = vert_blocks - (camera_height)
+
+    if new_cam_x < 0:
+      new_cam_x = 0
+    elif new_cam_x > hori_blocks - (camera_width):
+      new_cam_x = hori_blocks - (camera_width)
     
-    colour_blocks(screen,colour_grid,block_size)
+    new_camera_pos = (new_cam_x,new_cam_y)
+    camera_pos = new_camera_pos
+    
+    
+    colour_blocks(screen,colour_grid,block_size,camera_pos)
           
     pygame.display.flip()
     pygame.display.update()

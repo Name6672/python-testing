@@ -1,8 +1,12 @@
 import pygame
 import math
 from pymunk.vec2d import Vec2d
+import random
 
 #-------------------------------Utilities-------------------------------
+
+def random_true_or_false():
+  return bool(random.randint(0,1))
 
 def is_border(x,y,x_max,y_max):
   return (y == 0 or x == 0 or y == (y_max - 1) or x == (x_max - 1))
