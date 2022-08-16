@@ -8,7 +8,7 @@ import gridFileParser
 
 #globals
 screen_size = width, height = (600,400)
-fps = 10000
+fps = 10000#LIESSSS
 background_colour = 0x000000
 pygame.init()
 screen = pygame.display.set_mode(screen_size)
