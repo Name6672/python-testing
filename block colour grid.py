@@ -7,7 +7,7 @@ from blockGrid import save_grid
 import gridFileParser
 
 #globals
-screen_size = width, height = (600,400)
+screen_size = width, height = (1000,1000)
 fps = 10000#LIESSSS
 background_colour = 0x000000
 pygame.init()
@@ -42,7 +42,7 @@ def main():
     for col in range(vert_blocks):
       for block in range(int(hori_blocks/vert_blocks)):
         x_dist,y_dist = dist((block - camera_width/2,col - camera_height/2),cam_pos)
-        if abs(x_dist) < (camera_width/2 + 2) and abs(y_dist) < (camera_height/2 + 2):
+        if abs(x_dist) < (camera_width/2 + 1) and abs(y_dist) < (camera_height/2 + 1):
           draw_area = pygame.Rect(((blocksize*block) - cam_x,(blocksize*col)- cam_y),(blocksize,blocksize))
           block_colour = (0,0,0)
           block_value = grid.get_block(block,col)
@@ -63,6 +63,13 @@ def main():
         else:
           grid.set_block(block,col,utilities.is_even(col) ^ utilities.is_even(block))
           
+  def is_next_to_true(grid,col,block):
+    a = grid.get_block(block-1,col)
+    b = grid.get_block(block+1,col)
+    c = grid.get_block(block,col-1)
+    d = grid.get_block(block,col+1)
+    return (a or b or c or d)
+          
   def make_game_board(grid:BlockGrid):
     total_blocks,vert_blocks = grid.number_of_blocks()
     hori_blocks = int(total_blocks/vert_blocks)
@@ -72,7 +79,10 @@ def main():
           grid.set_block(block,col,(0,0,0))
         else:
           grid.set_block(block,col,False)
-          if utilities.random_true_or_false() and utilities.random_true_or_false() and utilities.random_true_or_false() and utilities.random_true_or_false():
+          def two_true_false():
+            return utilities.random_true_or_false() and utilities.random_true_or_false()
+          win_random = two_true_false() and two_true_false and utilities.random_true_or_false()
+          if win_random or (two_true_false() and is_next_to_true(grid,col,block)):
             grid.set_block(block,col,True)
   
   factors_w = utilities.factors(width)
@@ -243,6 +253,7 @@ def main():
     if t - last_move > 0.1:
       camera_pos = new_camera_pos
       last_move = t
+      mouse_pos = pygame.mouse.get_pos()
     # print(t)
     
     

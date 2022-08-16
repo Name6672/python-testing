@@ -12,7 +12,12 @@ class BlockGrid:
       blocks.update({a:col})
     return blocks
   def get_block(self,x,y):
-    return self.blocks[y][x]
+    try:
+      return self.blocks[y][x]
+    except:
+      total_blocks, veti_blocks = self.number_of_blocks()
+      hori_blocks = int(total_blocks/veti_blocks)
+      return self.blocks[veti_blocks-1,hori_blocks-1]
   def set_block(self,x,y,value):
     self.blocks[y][x] = value
   def number_of_blocks(self):
