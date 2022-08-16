@@ -147,6 +147,8 @@ def main():
   total_blocks,vert_blocks = colour_grid.number_of_blocks()
   hori_blocks = int(total_blocks/vert_blocks)
   
+  outlines = True
+  
   # blocks_image = pygame.Surface((600,600))
   # colour_blocks(blocks_image,colour_grid)
   def draw_camera(surf,cam_pos,blocksize,grid):
@@ -163,16 +165,17 @@ def main():
         else:
           block_colour = block_value
         pygame.draw.rect(surf,block_colour,draw_area)
-        neighbours = grid.get_neighbours(block + cam_offset[0] ,col+ cam_offset[1])
-        for neighbour in neighbours:
-          if neighbour.name == 'north' and not block_value == neighbour.value:
-            pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.topright)
-          if neighbour.name == 'east' and not block_value == neighbour.value:
-            pygame.draw.line(surf,0x000000,draw_area.topright,draw_area.bottomright)
-          if neighbour.name == 'south' and not block_value == neighbour.value:
-            pygame.draw.line(surf,0x000000,draw_area.bottomleft,draw_area.bottomright)
-          if neighbour.name == 'west' and not block_value == neighbour.value:
-            pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
+        if outlines:
+          neighbours = grid.get_neighbours(block + cam_offset[0] ,col+ cam_offset[1])
+          for neighbour in neighbours:
+            if neighbour.name == 'north' and not block_value == neighbour.value:
+              pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.topright)
+            if neighbour.name == 'east' and not block_value == neighbour.value:
+              pygame.draw.line(surf,0x000000,draw_area.topright,draw_area.bottomright)
+            if neighbour.name == 'south' and not block_value == neighbour.value:
+              pygame.draw.line(surf,0x000000,draw_area.bottomleft,draw_area.bottomright)
+            if neighbour.name == 'west' and not block_value == neighbour.value:
+              pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
   
   
   camera_pos = (hori_blocks/2,vert_blocks/2)
