@@ -81,6 +81,12 @@ def main():
   
   camera_size = camera_width,camera_height = (width/block_size,height/block_size)
   
+  def update_camera_size():
+    nonlocal camera_size
+    nonlocal camera_width
+    nonlocal camera_height
+    camera_size = camera_width,camera_height = (width/block_size,height/block_size)
+  
   colour_grid = BlockGrid(horizontal_blocks,vertical_blocks,False)
   # colour_grid.set_block(0,0,(255,0,0))
   make_game_board(colour_grid)
