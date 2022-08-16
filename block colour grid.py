@@ -2,6 +2,9 @@ import sys
 import pygame
 import utilities 
 import math
+from blockGrid import BlockGrid
+from blockGrid import save_grid
+import gridFileParser
 
 #globals
 screen_size = width, height = (600,400)
@@ -9,46 +12,17 @@ fps = 10000
 background_colour = 0x000000
 pygame.init()
 screen = pygame.display.set_mode(screen_size)
+GRID_SAVE_FILE = 'grid_saved_output.txt'
 
 clock = pygame.time.Clock()
 
 
 
-class BlockGrid:
-  def __init__(self,hori_blocks,vert_blocks,default_value=0):
-    self.blocks = self.create_blocks_container(hori_blocks,vert_blocks,default_value)
-  def create_blocks_container(self,hori,vert,value=0):
-    blocks = {}
-    for a in range(vert):
-      col = {}
-      for b in range(hori):
-        col.update({b:value})
-      blocks.update({a:col})
-    return blocks
-  def get_block(self,x,y):
-    return self.blocks[y][x]
-  def set_block(self,x,y,value):
-    self.blocks[y][x] = value
-  def number_of_blocks(self):
-    vertical = len(self.blocks)
-    horizontal = 0
-    for col in self.blocks:
-      horizontal += len(self.blocks[col])
-    return horizontal,vertical
-
-def save_grid(grid:BlockGrid):
-  hori_blocks,vert_blocks = grid.number_of_blocks()
-  with open('grid_saved_output.txt','w') as file:
-    lines = []
-    for col in range(vert_blocks):
-      line = ''
-      for block in range(int(hori_blocks/vert_blocks)):
-        line += (' <' + str(grid.get_block(block,col)) + '> ')
-      lines.append((line + '\n'))
-    file.writelines(lines)
-    file.close()
-
 def main():
+  
+  def load_grid(filename:str):
+    grid = gridFileParser.parse_file(filename)
+    return grid
   
   checker_colour_dict = {
     True:(175,100,100),
@@ -102,8 +76,8 @@ def main():
             grid.set_block(block,col,True)
   
   block_size = 20
-  vertical_blocks = int(6)
-  horizontal_blocks = int(6)
+  vertical_blocks = int(40)
+  horizontal_blocks = int(40)
   
   camera_size = camera_width,camera_height = (width/block_size,height/block_size)
   
@@ -171,6 +145,11 @@ def main():
       elif event.type == pygame.MOUSEBUTTONUP:
         if event.button == 1:
           mouse_down = False
+      elif event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_F5:
+          save_grid(colour_grid)
+        elif event.key == pygame.K_F6:
+          colour_grid = load_grid(GRID_SAVE_FILE)
           
       elif event.type == pygame.QUIT:
         save_grid(colour_grid)
