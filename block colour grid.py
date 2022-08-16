@@ -63,7 +63,6 @@ def main():
     #       else:
     #         block_colour = block_value
     #       pygame.draw.rect(surf,block_colour,draw_area)
-    #
 
         
   def make_checker_board(grid:BlockGrid): #deprecated
@@ -201,6 +200,15 @@ def main():
           pos = (pos[0] + cam_x, pos[1] + cam_y)
           block_val = colour_grid.get_block(pos[0],pos[1])
           border = utilities.is_border(pos[0],pos[1],hori_blocks,vert_blocks)
+          # print('\n')
+          # print('mouse pos: ' + str(mouse_pos))
+          # print('pos: ' + str(pos))
+          # print('pix: ' + str(change_pos_to_pix(pos)))
+          # print(f'border: {border}')
+          # if type(block_val) == type(True):
+          #   print(f'value: {checker_colour_dict[block_val]}')
+          # else:
+          #   print(f'value: {block_val}')
           set_to = not block_val
           mouse_down = True
           if not border:
@@ -231,11 +239,11 @@ def main():
             block_index = 0
           update_block_size()
           update_camera_size()
-          if camera_width > hori_blocks or block_size < 50:
+          if camera_width > hori_blocks:
             block_index += 1
             update_block_size()
             update_camera_size()
-          if camera_height > vert_blocks or block_size < 50:
+          if camera_height > vert_blocks:
             block_index += 1
             update_block_size()
             update_camera_size()
@@ -281,11 +289,8 @@ def main():
       camera_pos = new_camera_pos
       last_move = t
       mouse_pos = pygame.mouse.get_pos()
-    if mouse_down:
-      pos = change_pix_to_pos(mouse_pos)
-      pos = (pos[0] + cam_x, pos[1] + cam_y)
-      if colour_grid.get_block(pos[0],pos[1]) != set_to and not utilities.is_border(pos[0],pos[1],hori_blocks,vert_blocks):
-        colour_grid.set_block(pos[0],pos[1],set_to)
+    # print(t)
+    
     
     draw_camera(screen,camera_pos,block_size,colour_grid)
     true_fps = clock.get_fps()
