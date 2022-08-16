@@ -4,6 +4,7 @@ import utilities
 import math
 from blockGrid import BlockGrid
 from blockGrid import save_grid
+from blockGrid import Neighbour
 import gridFileParser
 
 #globals
@@ -36,21 +37,32 @@ def main():
     y = y2 - y1
     return x,y
   
-  def colour_blocks(surf,grid:BlockGrid,blocksize,cam_pos:tuple = (40,40)):
+  def colour_blocks(surf,grid:BlockGrid):
     hori_blocks,vert_blocks = grid.number_of_blocks()
-    cam_x,cam_y = change_pos_to_pix(cam_pos)
     for col in range(vert_blocks):
       for block in range(int(hori_blocks/vert_blocks)):
-        x_dist,y_dist = dist((block - camera_width/2,col - camera_height/2),cam_pos)
-        if abs(x_dist) < (camera_width/2 + 1) and abs(y_dist) < (camera_height/2 + 1):
-          draw_area = pygame.Rect(((blocksize*block) - cam_x,(blocksize*col)- cam_y),(blocksize,blocksize))
-          block_colour = (0,0,0)
-          block_value = grid.get_block(block,col)
-          if type(block_value) == type(True):
-            block_colour = checker_colour_dict[block_value]
-          else:
-            block_colour = block_value
-          pygame.draw.rect(surf,block_colour,draw_area)
+        draw_area = pygame.Rect((block,col),(1,1))
+        block_colour = (0,0,0)
+        block_value = grid.get_block(block,col)
+        if type(block_value) == type(True):
+          block_colour = checker_colour_dict[block_value]
+        else:
+          block_colour = block_value
+        pygame.draw.rect(surf,block_colour,draw_area)
+    # hori_blocks,vert_blocks = grid.number_of_blocks() #OLD VERSION
+    # cam_x,cam_y = change_pos_to_pix(cam_pos)
+    # for col in range(vert_blocks):
+    #   for block in range(int(hori_blocks/vert_blocks)):
+    #     x_dist,y_dist = dist((block - camera_width/2,col - camera_height/2),cam_pos)
+    #     if abs(x_dist) < (camera_width/2 + 1) and abs(y_dist) < (camera_height/2 + 1):
+    #       draw_area = pygame.Rect(((blocksize*block) - cam_x,(blocksize*col)- cam_y),(blocksize,blocksize))
+    #       block_colour = (0,0,0)
+    #       block_value = grid.get_block(block,col)
+    #       if type(block_value) == type(True):
+    #         block_colour = checker_colour_dict[block_value]
+    #       else:
+    #         block_colour = block_value
+    #       pygame.draw.rect(surf,block_colour,draw_area)
 
         
   def make_checker_board(grid:BlockGrid): #deprecated
@@ -95,11 +107,12 @@ def main():
   
   block_index = 6
   block_size = factors_common[block_index]
+  print(block_size)
   def update_block_size():
     nonlocal block_size
     block_size = factors_common[block_index]
-  horizontal_blocks = int(120)
-  vertical_blocks = int(80)
+  horizontal_blocks = int(60)
+  vertical_blocks = int(40)
   
   camera_size = camera_width,camera_height = (width/block_size,height/block_size)
   
@@ -133,6 +146,37 @@ def main():
   mouse_down = False
   total_blocks,vert_blocks = colour_grid.number_of_blocks()
   hori_blocks = int(total_blocks/vert_blocks)
+  
+  outlines = True
+  
+  # blocks_image = pygame.Surface((600,600))
+  # colour_blocks(blocks_image,colour_grid)
+  def draw_camera(surf,cam_pos,blocksize,grid):
+    cam_x, cam_y = cam_pos
+    for col in range(int(camera_height)):
+      for block in range(int(camera_width)):
+        draw_area = pygame.Rect(((blocksize*block),(blocksize*col)),(blocksize,blocksize))
+        block_colour = (0,0,0)
+        cam_offset = (cam_x, cam_y)
+        block_value = 0x000000
+        block_value = grid.get_block(block + cam_offset[0] ,col+ cam_offset[1])
+        if type(block_value) == type(True):
+          block_colour = checker_colour_dict[block_value]
+        else:
+          block_colour = block_value
+        pygame.draw.rect(surf,block_colour,draw_area)
+        if outlines:
+          neighbours = grid.get_neighbours(block + cam_offset[0] ,col+ cam_offset[1])
+          for neighbour in neighbours:
+            if neighbour.name == 'north' and not block_value == neighbour.value:
+              pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.topright)
+            if neighbour.name == 'east' and not block_value == neighbour.value:
+              pygame.draw.line(surf,0x000000,draw_area.topright,draw_area.bottomright)
+            if neighbour.name == 'south' and not block_value == neighbour.value:
+              pygame.draw.line(surf,0x000000,draw_area.bottomleft,draw_area.bottomright)
+            if neighbour.name == 'west' and not block_value == neighbour.value:
+              pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
+  
   
   camera_pos = (hori_blocks/2,vert_blocks/2)
   
@@ -192,12 +236,6 @@ def main():
             block_index = len(factors_common) - 1
           update_block_size()
           update_camera_size()
-          # if camera_width < hori_blocks:
-          #   block_size -= 5
-          #   update_camera_size()
-          # if camera_height < vert_blocks:
-          #   block_size -= 5
-          #   update_camera_size()
         elif event.button == 5:#scroll down
           block_index -= 1
           if block_index < 0:
@@ -222,6 +260,8 @@ def main():
           colour_grid = load_grid(GRID_SAVE_FILE)
           total_blocks,vert_blocks = colour_grid.number_of_blocks()
           hori_blocks = int(total_blocks/vert_blocks)
+        elif event.key == pygame.K_o:
+          outlines = not outlines
           
       elif event.type == pygame.QUIT:
         pygame.quit()
@@ -257,8 +297,8 @@ def main():
     # print(t)
     
     
-    colour_blocks(screen,colour_grid,block_size,camera_pos)
-    true_fps = 1/(dt+0.0000001)
+    draw_camera(screen,camera_pos,block_size,colour_grid)
+    true_fps = clock.get_fps()
     utilities.text_to_screen(screen,str(round(true_fps,1)),(0,0),15)
           
     pygame.display.flip()
