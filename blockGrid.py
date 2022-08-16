@@ -1,5 +1,10 @@
 
 
+class Neighbour:
+  def __init__(self,value,name):
+    self.value = value
+    self.name = name
+
 class BlockGrid:
   def __init__(self,hori_blocks,vert_blocks,default_value=0):
     self.blocks = self.create_blocks_container(hori_blocks,vert_blocks,default_value)
@@ -12,12 +17,13 @@ class BlockGrid:
       blocks.update({a:col})
     return blocks
   def get_block(self,x,y):
-    try:
-      return self.blocks[y][x]
-    except:
-      total_blocks, veti_blocks = self.number_of_blocks()
-      hori_blocks = int(total_blocks/veti_blocks)
-      return self.blocks[veti_blocks-1,hori_blocks-1]
+    total_blocks, veti_blocks = self.number_of_blocks()
+    hori_blocks = int(total_blocks/veti_blocks)
+    if x < hori_blocks and y < veti_blocks and x >= 0 and y >= 0:
+      blocks = self.blocks[y][x]
+      return blocks
+    else:
+      return 0x000000
   def set_block(self,x,y,value):
     self.blocks[y][x] = value
   def number_of_blocks(self):
@@ -26,6 +32,13 @@ class BlockGrid:
     for col in self.blocks:
       horizontal += len(self.blocks[col])
     return horizontal,vertical
+  def get_neighbours(self,x,y):
+    north = Neighbour(self.get_block(x,y-1),'north')
+    east = Neighbour(self.get_block(x+1,y),'east')
+    south = Neighbour(self.get_block(x,y+1),'south')
+    west = Neighbour(self.get_block(x-1,y),'west')
+    neighbours = [north,east,south,west]
+    return neighbours
   
   
 
