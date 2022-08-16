@@ -4,6 +4,9 @@ from pymunk.vec2d import Vec2d
 
 #-------------------------------Utilities-------------------------------
 
+def is_border(x,y,x_max,y_max):
+  return (y == 0 or x == 0 or y == (y_max - 1) or x == (x_max - 1))
+
 def text_to_screen(screen, text, pos, size = 30, color = (255, 255, 255), font = 'timesnewroman',background = False):
   """
   Print some text to a screen. Specifying size is unnecessary if you specify the font as a pygame font and not a string

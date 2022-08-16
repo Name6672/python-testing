@@ -3,7 +3,7 @@ import utilities
 import math
 
 #globals
-screen_size = width, height = (800,800)
+screen_size = width, height = (600,400)
 fps = 10000
 background_colour = 0x000000
 pygame.init()
@@ -36,27 +36,38 @@ class BlockGrid:
 
 def main():
   
-  def colour_blocks(surf,grid:BlockGrid,blocksize,black_white:bool=False):
+  checker_colour_dict = {
+    True:(0,255,0),
+    False:(255,0,0)
+  }
+  
+  def colour_blocks(surf,grid:BlockGrid,blocksize):
     hori_blocks,vert_blocks = grid.number_of_blocks()
     for col in range(vert_blocks):
       for block in range(int(hori_blocks/vert_blocks)):
         draw_area = pygame.Rect((blocksize*block,blocksize*col),(blocksize,blocksize))
         block_colour = (0,0,0)
-        if not black_white:
-          block_colour = grid.get_block(block,col)
-        elif grid.get_block(block,col):
-          block_colour = (255,255,255)
+        block_value = grid.get_block(block,col)
+        if type(block_value) == type(True):
+          block_colour = checker_colour_dict[block_value]
+        else:
+          block_colour = block_value
         pygame.draw.rect(surf,block_colour,draw_area)
         
   def make_checker_board(grid:BlockGrid):
-    hori_blocks,vert_blocks = grid.number_of_blocks()
+    total_blocks,vert_blocks = grid.number_of_blocks()
+    hori_blocks = int(total_blocks/vert_blocks)
     for col in range(vert_blocks):
-      for block in range(int(hori_blocks/vert_blocks)):
-        grid.set_block(block,col,utilities.is_even(col) ^ utilities.is_even(block))
+      for block in range(hori_blocks):
+        if utilities.is_border(block,col,hori_blocks,vert_blocks):
+          grid.set_block(block,col,(0,0,255))
+        else:
+          grid.set_block(block,col,utilities.is_even(col) ^ utilities.is_even(block))
+        
         
     
   
-  block_size = 10
+  block_size = 20
   vertical_blocks = int(height/block_size)
   horizontal_blocks = int(width/block_size)
   
@@ -83,6 +94,8 @@ def main():
   mouse_down = False
   
   running = True
+  total_blocks,vert_blocks = colour_grid.number_of_blocks()
+  hori_blocks = int(total_blocks/vert_blocks)
   while running:
     screen.fill(background_colour)
     # utilities.text_to_screen(screen,'Hello, World!',(width/2,height/2),background=True)
@@ -93,7 +106,7 @@ def main():
         mouse_pos = pygame.mouse.get_pos()
         if mouse_down:
           pos = change_pix_to_pos(mouse_pos)
-          if colour_grid.get_block(pos[0],pos[1]) != set_to:
+          if colour_grid.get_block(pos[0],pos[1]) != set_to and not utilities.is_border(pos[0],pos[1],hori_blocks,vert_blocks):
             colour_grid.set_block(pos[0],pos[1],set_to)
       elif event.type == pygame.MOUSEBUTTONDOWN:
         if event.button == 1:
@@ -101,9 +114,11 @@ def main():
           print('mouse pos: ' + str(mouse_pos))
           print('pos: ' + str(pos))
           print('pix: ' + str(change_pos_to_pix(pos)))
+          print(f'')
           set_to = not colour_grid.get_block(pos[0],pos[1])
           mouse_down = True
-          colour_grid.set_block(pos[0],pos[1],set_to)
+          if not utilities.is_border(pos[0],pos[1],hori_blocks,vert_blocks):
+            colour_grid.set_block(pos[0],pos[1],set_to)
       elif event.type == pygame.MOUSEBUTTONUP:
         if event.button == 1:
           mouse_down = False
@@ -111,7 +126,7 @@ def main():
       elif event.type == pygame.QUIT:
         pygame.quit()
     
-    colour_blocks(screen,colour_grid,block_size,True)
+    colour_blocks(screen,colour_grid,block_size)
           
     pygame.display.flip()
     pygame.display.update()
