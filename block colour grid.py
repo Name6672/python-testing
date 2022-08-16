@@ -63,6 +63,7 @@ def main():
     #       else:
     #         block_colour = block_value
     #       pygame.draw.rect(surf,block_colour,draw_area)
+    #
 
         
   def make_checker_board(grid:BlockGrid): #deprecated
