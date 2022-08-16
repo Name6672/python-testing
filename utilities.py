@@ -5,6 +5,20 @@ import random
 
 #-------------------------------Utilities-------------------------------
 
+def in_both(list_a,list_b):
+  list_both = []
+  for obj in list_a:
+    if obj in list_b:
+      list_both.append(obj)
+  return list_both
+
+def factors(x):
+  all = []
+  for i in range(1,x+1):
+    if not x % i:
+      all.append(i)
+  return all
+
 def random_true_or_false():
   return bool(random.randint(0,1))
 

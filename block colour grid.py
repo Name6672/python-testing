@@ -75,9 +75,21 @@ def main():
           if utilities.random_true_or_false() and utilities.random_true_or_false() and utilities.random_true_or_false() and utilities.random_true_or_false():
             grid.set_block(block,col,True)
   
-  block_size = 20
-  vertical_blocks = int(40)
-  horizontal_blocks = int(60)
+  factors_w = utilities.factors(width)
+  factors_h = utilities.factors(height)
+  factors_common = utilities.in_both(factors_w,factors_h)
+  
+  print(f'factors of {width}: {factors_w}')
+  print(f'factors of {height}: {factors_h}')
+  print(f'common factors: {factors_common}')
+  
+  block_index = 6
+  block_size = factors_common[block_index]
+  def update_block_size():
+    nonlocal block_size
+    block_size = factors_common[block_index]
+  horizontal_blocks = int(120)
+  vertical_blocks = int(80)
   
   camera_size = camera_width,camera_height = (width/block_size,height/block_size)
   
@@ -119,6 +131,7 @@ def main():
     screen.fill(background_colour)
     # utilities.text_to_screen(screen,'Hello, World!',(width/2,height/2),background=True)
     dt = clock.get_time()/1000
+    # print(dt)
     t+=dt
     cam_x, cam_y = camera_pos
     
@@ -136,6 +149,24 @@ def main():
           pos = (pos[0] + cam_x, pos[1] + cam_y)
           block_val = colour_grid.get_block(pos[0],pos[1])
           border = utilities.is_border(pos[0],pos[1],hori_blocks,vert_blocks)
+          # print('\n')
+          # print('mouse pos: ' + str(mouse_pos))
+          # print('pos: ' + str(pos))
+          # print('pix: ' + str(change_pos_to_pix(pos)))
+          # print(f'border: {border}')
+          # if type(block_val) == type(True):
+          #   print(f'value: {checker_colour_dict[block_val]}')
+          # else:
+          #   print(f'value: {block_val}')
+          set_to = not block_val
+          mouse_down = True
+          if not border:
+            colour_grid.set_block(pos[0],pos[1],set_to)
+        elif event.button == 3:#right click
+          pos = change_pix_to_pos(mouse_pos)
+          pos = (pos[0] + cam_x, pos[1] + cam_y)
+          block_val = colour_grid.get_block(pos[0],pos[1])
+          border = utilities.is_border(pos[0],pos[1],hori_blocks,vert_blocks)
           print('\n')
           print('mouse pos: ' + str(mouse_pos))
           print('pos: ' + str(pos))
@@ -145,12 +176,11 @@ def main():
             print(f'value: {checker_colour_dict[block_val]}')
           else:
             print(f'value: {block_val}')
-          set_to = not block_val
-          mouse_down = True
-          if not border:
-            colour_grid.set_block(pos[0],pos[1],set_to)
         elif event.button == 4:#scroll up
-          block_size += 5
+          block_index += 1
+          if block_index > len(factors_common) - 1:
+            block_index = len(factors_common) - 1
+          update_block_size()
           update_camera_size()
           # if camera_width < hori_blocks:
           #   block_size -= 5
@@ -159,13 +189,18 @@ def main():
           #   block_size -= 5
           #   update_camera_size()
         elif event.button == 5:#scroll down
-          block_size -= 5
+          block_index -= 1
+          if block_index < 0:
+            block_index = 0
+          update_block_size()
           update_camera_size()
           if camera_width > hori_blocks:
-            block_size += 5
+            block_index += 1
+            update_block_size()
             update_camera_size()
           if camera_height > vert_blocks:
-            block_size += 5
+            block_index += 1
+            update_block_size()
             update_camera_size()
       elif event.type == pygame.MOUSEBUTTONUP:
         if event.button == 1:
@@ -208,10 +243,12 @@ def main():
     if t - last_move > 0.1:
       camera_pos = new_camera_pos
       last_move = t
-    # print(t - last_move)
+    # print(t)
     
     
     colour_blocks(screen,colour_grid,block_size,camera_pos)
+    true_fps = 1/(dt+0.0000001)
+    utilities.text_to_screen(screen,str(round(true_fps,1)),(0,0),15)
           
     pygame.display.flip()
     pygame.display.update()
