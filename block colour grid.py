@@ -77,7 +77,7 @@ def main():
   
   block_size = 20
   vertical_blocks = int(40)
-  horizontal_blocks = int(40)
+  horizontal_blocks = int(60)
   
   camera_size = camera_width,camera_height = (width/block_size,height/block_size)
   
@@ -106,6 +106,7 @@ def main():
   
   t = 0
   ticks = 0
+  last_move = -1000
   mouse_pos = (0,0)
   mouse_down = False
   total_blocks,vert_blocks = colour_grid.number_of_blocks()
@@ -148,6 +149,24 @@ def main():
           mouse_down = True
           if not border:
             colour_grid.set_block(pos[0],pos[1],set_to)
+        elif event.button == 4:#scroll up
+          block_size += 5
+          update_camera_size()
+          # if camera_width < hori_blocks:
+          #   block_size -= 5
+          #   update_camera_size()
+          # if camera_height < vert_blocks:
+          #   block_size -= 5
+          #   update_camera_size()
+        elif event.button == 5:#scroll down
+          block_size -= 5
+          update_camera_size()
+          if camera_width > hori_blocks:
+            block_size += 5
+            update_camera_size()
+          if camera_height > vert_blocks:
+            block_size += 5
+            update_camera_size()
       elif event.type == pygame.MOUSEBUTTONUP:
         if event.button == 1:
           mouse_down = False
@@ -156,9 +175,10 @@ def main():
           save_grid(colour_grid)
         elif event.key == pygame.K_F6:
           colour_grid = load_grid(GRID_SAVE_FILE)
+          total_blocks,vert_blocks = colour_grid.number_of_blocks()
+          hori_blocks = int(total_blocks/vert_blocks)
           
       elif event.type == pygame.QUIT:
-        save_grid(colour_grid)
         pygame.quit()
         sys.exit()
         
@@ -185,7 +205,10 @@ def main():
       new_cam_x = hori_blocks - (camera_width)
     
     new_camera_pos = (new_cam_x,new_cam_y)
-    camera_pos = new_camera_pos
+    if t - last_move > 0.1:
+      camera_pos = new_camera_pos
+      last_move = t
+    # print(t - last_move)
     
     
     colour_blocks(screen,colour_grid,block_size,camera_pos)

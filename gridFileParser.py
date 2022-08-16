@@ -19,8 +19,8 @@ def parse_string(string:str):
 def make_grid(grid:BlockGrid,rows):
   total_blocks,vert_blocks = grid.number_of_blocks()
   hori_blocks = int(total_blocks/vert_blocks)
-  for col in range(vert_blocks):
-    for block in range(hori_blocks):
+  for col in range(hori_blocks):
+    for block in range(vert_blocks):
         grid.set_block(block,col,rows[col][block])
     
     
@@ -58,17 +58,22 @@ def parse_file(filename:str):
         obj = parse_string(string)
         objects.append(obj)
       rows.append(objects)
-    for row in rows:
-      print(row)
+    # for row in rows:
+    #   print(row)
     grid_width = len(rows)
+    print(f'width: {grid_width}')
     grid_objects = 0
     for row in rows:
       for obj in row:
         grid_objects += 1
     grid_height = grid_objects/grid_width
+    print(f'height: {grid_height}')
+    print(f'width * height: {grid_width * grid_height}')
+    print(f'total blocks: {grid_objects}')
+    print('creating grid')
     grid = BlockGrid(int(grid_width),int(grid_height))
-    
     make_grid(grid,rows)
+    print('grid created. returning grid')
     return grid
     
 if __name__ == '__main__':
