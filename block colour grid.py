@@ -203,15 +203,7 @@ def main():
           pos = (pos[0] + cam_x, pos[1] + cam_y)
           block_val = colour_grid.get_block(pos[0],pos[1])
           border = utilities.is_border(pos[0],pos[1],hori_blocks,vert_blocks)
-          # print('\n')
-          # print('mouse pos: ' + str(mouse_pos))
-          # print('pos: ' + str(pos))
-          # print('pix: ' + str(change_pos_to_pix(pos)))
-          # print(f'border: {border}')
-          # if type(block_val) == type(True):
-          #   print(f'value: {checker_colour_dict[block_val]}')
-          # else:
-          #   print(f'value: {block_val}')
+          
           set_to = not block_val
           mouse_down = True
           if not border:
