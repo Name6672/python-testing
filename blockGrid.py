@@ -1,9 +1,13 @@
 
 
+from turtle import pos
+
+
 class Neighbour:
-  def __init__(self,value,name):
+  def __init__(self,value,name,pos):
     self.value = value
     self.name = name
+    self.pos = pos
 
 class BlockGrid:
   def __init__(self,hori_blocks,vert_blocks,default_value=0):
@@ -33,10 +37,10 @@ class BlockGrid:
       horizontal += len(self.blocks[col])
     return horizontal,vertical
   def get_neighbours(self,x,y):
-    north = Neighbour(self.get_block(x,y-1),'north')
-    east = Neighbour(self.get_block(x+1,y),'east')
-    south = Neighbour(self.get_block(x,y+1),'south')
-    west = Neighbour(self.get_block(x-1,y),'west')
+    north = Neighbour(self.get_block(x,y-1),'north',(x,y-1))
+    east = Neighbour(self.get_block(x+1,y),'east',(x+1,y))
+    south = Neighbour(self.get_block(x,y+1),'south',(x,y+1))
+    west = Neighbour(self.get_block(x-1,y),'west',(x-1,y))
     neighbours = [north,east,south,west]
     return neighbours
   
