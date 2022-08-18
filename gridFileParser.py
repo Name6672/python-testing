@@ -21,7 +21,7 @@ def make_grid(grid:BlockGrid,rows):
   hori_blocks = int(total_blocks/vert_blocks)
   for col in range(hori_blocks):
     for block in range(vert_blocks):
-        grid.set_block(block,col,rows[col][block])
+        grid.set_block(col,block,rows[block][col])
     
     
 def parse_file(filename:str):
@@ -60,14 +60,14 @@ def parse_file(filename:str):
       rows.append(objects)
     # for row in rows:
     #   print(row)
-    grid_width = len(rows)
-    print(f'width: {grid_width}')
+    grid_height = len(rows)
+    print(f'height: {grid_height}')
     grid_objects = 0
     for row in rows:
       for obj in row:
         grid_objects += 1
-    grid_height = grid_objects/grid_width
-    print(f'height: {grid_height}')
+    grid_width = grid_objects/grid_height
+    print(f'width: {grid_width}')
     print(f'width * height: {grid_width * grid_height}')
     print(f'total blocks: {grid_objects}')
     print('creating grid')
