@@ -9,7 +9,8 @@ import gridFileParser
 
 
 #BUG TRACKER
-#dots left from borders in the corner of a block sometimes appear when a block is changed. fixed by updating nearby blocks or the whole camera. not a big problem so not planning to fix it
+#dots left from borders in the corner of a block sometimes appear when a block is changed. fixed by updating nearby blocks or the whole camera. 
+#not a big problem so not planning to fix it
 
 #globals
 screen_size = width, height = (1200,800)
