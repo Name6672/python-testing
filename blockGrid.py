@@ -44,16 +44,36 @@ class BlockGrid:
   def get_neighbours(self,x,y):
     total_blocks, vertical_blocks = self.num_blocks
     hori_blocks = total_blocks/vertical_blocks
+    
     north,east,south,west = None,None,None,None
-    if y > 1:
+    
+    northeast,southwest = None,None
+    southeast,northwest = None,None
+    
+    x_greater = x > 1
+    y_greater = y > 1
+    x_less = x < hori_blocks-1
+    y_less = y < vertical_blocks-1
+    
+    if y_greater:
       north = Neighbour(self.get_block(x,y-1),'north',(x,y-1))
-    if x < hori_blocks-1:
+    if x_less:
       east = Neighbour(self.get_block(x+1,y),'east',(x+1,y))
-    if y < vertical_blocks-1:
+    if y_less:
       south = Neighbour(self.get_block(x,y+1),'south',(x,y+1))
-    if x > 1:
+    if x_greater:
       west = Neighbour(self.get_block(x-1,y),'west',(x-1,y))
-    neighbours = [north,east,south,west]
+      
+    if x_greater and y_greater:
+      northwest = Neighbour(self.get_block(x-1,y-1),'northwest',(x-1,y-1))
+    if x_less and y_greater:
+      northeast = Neighbour(self.get_block(x+1,y-1),'northeast',(x+1,y-1))
+    if x_greater and y_less:
+      southwest = Neighbour(self.get_block(x-1,y+1),'southwest',(x-1,y+1))
+    if x_less and y_less:
+      southeast = Neighbour(self.get_block(x+1,y+1),'southeast',(x+1,y+1))
+      
+    neighbours = [north,east,south,west,northeast,southwest,southeast,northwest]
     return neighbours
   
   

@@ -9,8 +9,7 @@ import gridFileParser
 
 
 #BUG TRACKER
-#dots left from borders in the corner of a block sometimes appear when a block is changed. fixed by updating nearby blocks or the whole camera. 
-#not a big problem so not planning to fix it
+#ALL BUGS FIXED :D
 
 #globals
 screen_size = width, height = (1200,800)
@@ -166,8 +165,6 @@ def main():
   
   outlines = True
   
-  # blocks_image = pygame.Surface((600,600))
-  # colour_blocks(blocks_image,colour_grid)
   
   camera_buffer = pygame.Surface((width,height))
   def draw_camera(surf,cam_pos,blocksize,grid,pos=None,direct_value=None,is_first:bool=True):
