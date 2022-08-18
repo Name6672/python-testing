@@ -18,6 +18,7 @@ background_colour = 0x000000
 pygame.init()
 screen = pygame.display.set_mode(screen_size)
 GRID_SAVE_FILE = 'grid_saved_output.txt'
+STARTING_GRID_SIZE = SGW, SGH = (120,80)
 
 clock = pygame.time.Clock()
 
@@ -126,8 +127,8 @@ def main():
   def update_block_size():
     nonlocal block_size
     block_size = factors_common[block_index]
-  horizontal_blocks = int(1200)
-  vertical_blocks = int(800)
+  horizontal_blocks = int(SGW)
+  vertical_blocks = int(SGH)
   
   camera_size = camera_width,camera_height = (width/block_size,height/block_size)
   
