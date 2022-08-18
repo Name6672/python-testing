@@ -9,9 +9,7 @@ import gridFileParser
 
 
 #BUG TRACKER
-#doing things involving neighbours when one of the neighbours is a border causes a crash
-#neighbour outlines in the camera draw-er for specific positions don't work right
-#zooming out too far doesn't always cause a camera redraw leaving potential problems
+#ALL GOOD RIGHT NOW :D
 
 #globals
 screen_size = width, height = (600,400)
