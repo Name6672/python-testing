@@ -54,7 +54,7 @@ def main():
     False:(0,150,0)
   }
   
-  def colour_blocks(surf,grid:BlockGrid):
+  def colour_blocks(surf,grid:BlockGrid):#deprecated
     hori_blocks,vert_blocks = grid.number_of_blocks()
     for col in range(vert_blocks):
       for block in range(int(hori_blocks/vert_blocks)):
@@ -128,8 +128,8 @@ def main():
   def update_block_size():
     nonlocal block_size
     block_size = factors_common[block_index]
-  horizontal_blocks = int(60)
-  vertical_blocks = int(40)
+  horizontal_blocks = int(1200)
+  vertical_blocks = int(800)
   
   camera_size = camera_width,camera_height = (width/block_size,height/block_size)
   
@@ -169,12 +169,12 @@ def main():
   # blocks_image = pygame.Surface((600,600))
   # colour_blocks(blocks_image,colour_grid)
   
-  camera_buffer = pygame.Surface((5000,5000))
-  def draw_camera(surf,cam_pos,blocksize,grid,pos=None,direct_value=None):
+  camera_buffer = pygame.Surface((width,height))
+  def draw_camera(surf,cam_pos,blocksize,grid,pos=None,direct_value=None,is_first:bool=True):
     cam_x, cam_y = cam_pos
     cam_offset = (cam_x, cam_y)
     if pos:
-      draw_area = pygame.Rect(((blocksize*pos[0]),(blocksize*pos[1])),(blocksize,blocksize))
+      draw_area = pygame.Rect(((blocksize*(pos[0] - cam_offset[0])),(blocksize*(pos[1] - cam_offset[1]))),(blocksize,blocksize))
       block_colour = (0,0,0)
       block_value = direct_value
       if block_value != None:
@@ -184,30 +184,26 @@ def main():
           block_colour = block_value
         pygame.draw.rect(surf,block_colour,draw_area)
       else:
-        block_value = grid.get_block(pos[0] + cam_offset[0] , pos[1] + cam_offset[1])
+        block_value = grid.get_block(pos[0], pos[1])
         if type(block_value) == type(True):
           block_colour = checker_colour_dict[block_value]
         else:
           block_colour = block_value
       if outlines:
-        neighbours = grid.get_neighbours(pos[0] + cam_offset[0] ,pos[1] + cam_offset[1])
+        neighbours = grid.get_neighbours(pos[0],pos[1])
         for neighbour in neighbours:
-          if neighbour.name == 'north' and not block_value == neighbour.value:
-            pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.topright)
-            if block_value:
-              draw_camera(surf,cam_pos,blocksize,grid,neighbour.pos,None)
-          if neighbour.name == 'east' and not block_value == neighbour.value:
-            pygame.draw.line(surf,0x000000,draw_area.topright,draw_area.bottomright)
-            if block_value:
-              draw_camera(surf,cam_pos,blocksize,grid,neighbour.pos,None)
-          if neighbour.name == 'south' and not block_value == neighbour.value:
-            pygame.draw.line(surf,0x000000,draw_area.bottomleft,draw_area.bottomright)
-            if block_value:
-              draw_camera(surf,cam_pos,blocksize,grid,neighbour.pos,None)
-          if neighbour.name == 'west' and not block_value == neighbour.value:
-            pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
-            if block_value:
-              draw_camera(surf,cam_pos,blocksize,grid,neighbour.pos,None)
+          if neighbour != None:
+            neighbour_pos = (neighbour.pos[0],neighbour.pos[1])
+            if neighbour.name == 'north' and not block_value == neighbour.value:
+              pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.topright)
+            if neighbour.name == 'east' and not block_value == neighbour.value:
+              pygame.draw.line(surf,0x000000,draw_area.topright,draw_area.bottomright)
+            if neighbour.name == 'south' and not block_value == neighbour.value:
+              pygame.draw.line(surf,0x000000,draw_area.bottomleft,draw_area.bottomright)
+            if neighbour.name == 'west' and not block_value == neighbour.value:
+              pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
+            if is_first:
+              draw_camera(surf,cam_pos,blocksize,grid,neighbour_pos,neighbour.value,False)
     else:
       for col in range(int(camera_height)):
         for block in range(int(camera_width)):
@@ -223,14 +219,15 @@ def main():
           if outlines:
             neighbours = grid.get_neighbours(block + cam_offset[0] ,col+ cam_offset[1])
             for neighbour in neighbours:
-              if neighbour.name == 'north' and not block_value == neighbour.value:
-                pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.topright)
-              if neighbour.name == 'east' and not block_value == neighbour.value:
-                pygame.draw.line(surf,0x000000,draw_area.topright,draw_area.bottomright)
-              if neighbour.name == 'south' and not block_value == neighbour.value:
-                pygame.draw.line(surf,0x000000,draw_area.bottomleft,draw_area.bottomright)
-              if neighbour.name == 'west' and not block_value == neighbour.value:
-                pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
+              if neighbour != None:
+                if neighbour.name == 'north' and not block_value == neighbour.value:
+                  pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.topright)
+                if neighbour.name == 'east' and not block_value == neighbour.value:
+                  pygame.draw.line(surf,0x000000,draw_area.topright,draw_area.bottomright)
+                if neighbour.name == 'south' and not block_value == neighbour.value:
+                  pygame.draw.line(surf,0x000000,draw_area.bottomleft,draw_area.bottomright)
+                if neighbour.name == 'west' and not block_value == neighbour.value:
+                  pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
   
   
   camera_pos = (hori_blocks/2,vert_blocks/2)
@@ -341,13 +338,17 @@ def main():
       
     if new_cam_y < 0:
       new_cam_y = 0
+      is_moving = True
     elif new_cam_y > vert_blocks - (camera_height):
       new_cam_y = vert_blocks - (camera_height)
+      is_moving = True
 
     if new_cam_x < 0:
       new_cam_x = 0
+      is_moving = True
     elif new_cam_x > hori_blocks - (camera_width):
       new_cam_x = hori_blocks - (camera_width)
+      is_moving = True
     
     new_camera_pos = (new_cam_x,new_cam_y)
     if t - last_move > 0.1 and is_moving:
