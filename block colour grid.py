@@ -24,10 +24,10 @@ STARTING_GRID_SIZE = SGW, SGH = (120,80)
 clock = pygame.time.Clock()
 
 #setup sounds
-place_sound_a = pygame.mixer.Sound('place_sound_a.wav')
-place_sound_b = pygame.mixer.Sound('place_sound_b.wav')
-place_sound_c = pygame.mixer.Sound('place_sound_c.wav')
-place_sounds = [place_sound_a,place_sound_b,place_sound_c]
+# place_sound_a = pygame.mixer.Sound('place_sound_a.wav')
+# place_sound_b = pygame.mixer.Sound('place_sound_b.wav')
+# place_sound_c = pygame.mixer.Sound('place_sound_c.wav')
+# place_sounds = [place_sound_a,place_sound_b,place_sound_c]
 
 
 def make_checker_board(grid:BlockGrid,border = False): #deprecated checker board function
@@ -88,7 +88,7 @@ def main(): #main function
         if utilities.is_border(block,col,hori_blocks,vert_blocks):
           grid.set_block(block,col,(0,0,0))
         else:
-          grid.set_block(block,col,False)
+          grid.set_block(block,col,(0,255,0))
           def two_true_false(): # function for checking random twice to reduce odds from 50% to 25%
             return utilities.random_true_or_false() and utilities.random_true_or_false()
           win_random = two_true_false() and two_true_false and utilities.random_true_or_false() # one in 32 chance
@@ -232,8 +232,8 @@ def main(): #main function
           pos = (pos[0] + cam_x, pos[1] + cam_y) # get the grid position of the mouse
           if colour_grid.get_block(pos[0],pos[1]) != set_to and not utilities.is_border(pos[0],pos[1],hori_blocks,vert_blocks):
             colour_grid.set_block(pos[0],pos[1],set_to) # drag set blocks
-            place_sound = utilities.random_from_list(place_sounds)
-            place_sound.play()
+            # place_sound = utilities.random_from_list(place_sounds)
+            # place_sound.play()
             draw_camera(camera_buffer,camera_pos,block_size,colour_grid,pos,set_to)#redraw specific block
       elif event.type == pygame.MOUSEBUTTONDOWN: 
         if event.button == 1:#left click
@@ -246,8 +246,8 @@ def main(): #main function
           mouse_down = True# say the left mouse is being held down
           if not border: # change the block value if it's not a border block
             colour_grid.set_block(pos[0],pos[1],set_to)
-            place_sound = utilities.random_from_list(place_sounds)
-            place_sound.play()
+            # place_sound = utilities.random_from_list(place_sounds)
+            # place_sound.play()
             draw_camera(camera_buffer,camera_pos,block_size,colour_grid,pos,set_to)#redraw specific block
             
         elif event.button == 3:#right click
@@ -348,8 +348,8 @@ def main(): #main function
       pos = (pos[0] + cam_x, pos[1] + cam_y)
       if colour_grid.get_block(pos[0],pos[1]) != set_to and not utilities.is_border(pos[0],pos[1],hori_blocks,vert_blocks):
         colour_grid.set_block(pos[0],pos[1],set_to) # drag set blocks
-        place_sound = utilities.random_from_list(place_sounds)
-        place_sound.play()
+        # place_sound = utilities.random_from_list(place_sounds)
+        # place_sound.play()
         draw_camera(camera_buffer,camera_pos,block_size,colour_grid,pos,set_to) # draw camera at that position
     
     
