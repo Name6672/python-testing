@@ -236,6 +236,7 @@ def main(): #main function
             # place_sound.play()
             draw_camera(camera_buffer,camera_pos,block_size,colour_grid,pos,set_to)#redraw specific block
       elif event.type == pygame.MOUSEBUTTONDOWN: 
+        print (f'mouse button {event.button} pressed down')
         if event.button == 1:#left click
           pos = change_pix_to_pos(mouse_pos)
           pos = (pos[0] + cam_x, pos[1] + cam_y) # get the grid position of the mouse
@@ -249,6 +250,8 @@ def main(): #main function
             # place_sound = utilities.random_from_list(place_sounds)
             # place_sound.play()
             draw_camera(camera_buffer,camera_pos,block_size,colour_grid,pos,set_to)#redraw specific block
+        elif event.button == 2:#middle click
+          pass
             
         elif event.button == 3:#right click
           pos = change_pix_to_pos(mouse_pos)
@@ -287,6 +290,10 @@ def main(): #main function
             update_block_size()
             update_camera_size()
           camera_changed = True # redraw camera view
+        elif event.button == 6: #back extra mouse button
+          pass
+        elif event.button == 7: #forward extra mouse button
+          pass
       elif event.type == pygame.MOUSEBUTTONUP:
         if event.button == 1:# left click release
           mouse_down = False
