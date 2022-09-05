@@ -5,6 +5,27 @@ import random
 
 #-------------------------------Utilities-------------------------------
 
+def next_in_list(li,item):
+  """gets the next item in the list"""
+  index = li.index(item) + 1
+  if index > len(li) - 1:
+    index = 0
+  return li[index] 
+
+def limit_values(li:list,lower=None,greater=None):
+  """returns a list of the values which fit within the limit paremeters. limit paremeters are inclusive and values of none will be treated as no limit"""
+  new_list = li
+  if lower != None:
+    for value in new_list:
+      if value <= lower:
+        new_list.remove(value)
+  if greater != None:
+    for value in new_list:
+      if value >= greater:
+        new_list.remove(value)
+  return new_list
+        
+
 def random_from_list(li):
   index = random.randint(0,len(li)-1)
   return li[index]

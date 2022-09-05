@@ -3,6 +3,20 @@ class Neighbour: # class for holding info about neighbouring blocks
     self.value = value
     self.name = name
     self.pos = pos
+    
+class BlockValue: #class for storing block info
+  def __init__(self,value):
+    self.neighbours = None
+    self.value = value
+    
+NESW = [
+  'north',
+  'east',
+  'south',
+  'west'
+]
+    
+#change block values to use a dict or custom class
 
 class BlockGrid: # grid class
   
@@ -13,6 +27,7 @@ class BlockGrid: # grid class
     
   def create_blocks_container(self,hori:int,vert:int,value=0): # create the dictionaries for the grid
     blocks = {}
+    value = BlockValue(value)
     for a in range(vert):
       col = {}
       for b in range(hori):
@@ -20,31 +35,43 @@ class BlockGrid: # grid class
       blocks.update({a:col})
     return blocks
   
-  def get_block(self,x,y): # get a block in the grid
+  def get_block(self,x,y,as_block_value=False): # get a block in the grid
+    """get a block in the grid at the position of (x,y)"""
     total_blocks, veti_blocks = self.num_blocks
     hori_blocks = int(total_blocks/veti_blocks)
     if x < hori_blocks and y < veti_blocks and x >= 0 and y >= 0: # limit value to only those in range
-      blocks = self.blocks[y][x]
-      return blocks
+      block = self.blocks[y][x]
+      if as_block_value:
+        return block
+      else:
+        return block.value
     else:
       return 0x000000 #return black as default value
     
   def set_block(self,x,y,value): # set a block in the grid
-    self.blocks[y][x] = value
+    """set a block in the grid at the position of (x,y) to the specified value"""
+    neighbours = self.get_neighbours(x,y)
+    self.blocks[y][x] = BlockValue(value)
+    for neighbour in neighbours:
+      if neighbour:
+        if neighbour.name in NESW:
+          pos = neighbour.pos
+          self.get_neighbours(pos[0],pos[1],True)
     
   def number_of_blocks(self): # return the number of blocks in the grid
+    """returns the number of blocks in a """
     
     if self.num_blocks: # return the value already saved if it exists
       return self.num_blocks
     else: # set the number of blocks if it doesn't
       vertical = len(self.blocks)
-      horizontal = 0
+      total = 0
       for col in self.blocks:
-        horizontal += len(self.blocks[col])
-      self.num_blocks = horizontal, vertical
-      return horizontal,vertical
+        total += len(self.blocks[col])
+      self.num_blocks = total, vertical
+      return total,vertical
     
-  def get_neighbours(self,x,y): # get the neighbouring blocks and their information
+  def get_neighbours(self,x,y,force_check=False): # get the neighbouring blocks and their information
     total_blocks, vertical_blocks = self.num_blocks
     hori_blocks = total_blocks/vertical_blocks # get the number of blocks in the grid for value limiting
     
@@ -57,27 +84,35 @@ class BlockGrid: # grid class
     y_greater = y > 1
     x_less = x < hori_blocks-1
     y_less = y < vertical_blocks-1
-    
-    if y_greater: # get the primary neighbours
-      north = Neighbour(self.get_block(x,y-1),'north',(x,y-1))
-    if x_less:
-      east = Neighbour(self.get_block(x+1,y),'east',(x+1,y))
-    if y_less:
-      south = Neighbour(self.get_block(x,y+1),'south',(x,y+1))
-    if x_greater:
-      west = Neighbour(self.get_block(x-1,y),'west',(x-1,y))
-      
-    if x_greater and y_greater: # get the secondary neighbours
-      northwest = Neighbour(self.get_block(x-1,y-1),'northwest',(x-1,y-1))
-    if x_less and y_greater:
-      northeast = Neighbour(self.get_block(x+1,y-1),'northeast',(x+1,y-1))
-    if x_greater and y_less:
-      southwest = Neighbour(self.get_block(x-1,y+1),'southwest',(x-1,y+1))
-    if x_less and y_less:
-      southeast = Neighbour(self.get_block(x+1,y+1),'southeast',(x+1,y+1))
-      
-    neighbours = [north,east,south,west,northeast,southwest,southeast,northwest] # pack neighbours into a list
-    return neighbours # return all neighbours
+    block = self.get_block(x,y,True)
+    if x < hori_blocks and y < vertical_blocks and x >= 0 and y >= 0: # limit value to only those in range
+      if block.neighbours and not force_check:
+        # print('returned saved neighbours')
+        return block.neighbours
+      if y_greater: # get the primary neighbours
+        north = Neighbour(self.get_block(x,y-1),'north',(x,y-1))
+      if x_less:
+        east = Neighbour(self.get_block(x+1,y),'east',(x+1,y))
+      if y_less:
+        south = Neighbour(self.get_block(x,y+1),'south',(x,y+1))
+      if x_greater:
+        west = Neighbour(self.get_block(x-1,y),'west',(x-1,y))
+        
+      if x_greater and y_greater: # get the secondary neighbours
+        northwest = Neighbour(self.get_block(x-1,y-1),'northwest',(x-1,y-1))
+      if x_less and y_greater:
+        northeast = Neighbour(self.get_block(x+1,y-1),'northeast',(x+1,y-1))
+      if x_greater and y_less:
+        southwest = Neighbour(self.get_block(x-1,y+1),'southwest',(x-1,y+1))
+      if x_less and y_less:
+        southeast = Neighbour(self.get_block(x+1,y+1),'southeast',(x+1,y+1))
+        
+      neighbours = [north,east,south,west,northeast,southwest,southeast,northwest] # pack neighbours into a list
+      block.neighbours = neighbours
+      return neighbours # return all neighbours
+    else:
+      # print('wtf why are we here what did you do')
+      return [None] #prevent problems
   
   
 

@@ -9,6 +9,7 @@ import gridFileParser # parser for loading grid files
 
 #BUG TRACKER
 #ALL BUGS FIXED :D
+#tho sometimes (when you zoom out too much) it's slow and it takes too long to get the neighbours of everything when the grid is created due to neighbours changing
 
 #globals
 screen_size = width, height = (1200,800) # size of the screen in pixels
@@ -18,7 +19,7 @@ pygame.init() # initialise pygame
 screen = pygame.display.set_mode(screen_size) # initialise the screen
 #constants
 GRID_SAVE_FILE = 'grid_saved_output.txt'
-STARTING_GRID_SIZE = SGW, SGH = (120,80)
+STARTING_GRID_SIZE = SGW, SGH = (240,240)
 
 #create the clock
 clock = pygame.time.Clock()
@@ -50,6 +51,16 @@ def dist(pos_1,pos_2):#get the distance between two points as x and y values
 
 
 def main(): #main function
+  
+  colours = [
+    (15,15,15),
+    (255,255,255),
+    (255,0,0),
+    (0,255,0),
+    (0,0,255),
+    (175,100,100),
+    (0,150,0)
+  ]
   
   def load_grid(filename:str):# calls file parser function to load file
     grid = gridFileParser.parse_file(filename)
@@ -88,7 +99,7 @@ def main(): #main function
         if utilities.is_border(block,col,hori_blocks,vert_blocks):
           grid.set_block(block,col,(0,0,0))
         else:
-          grid.set_block(block,col,(0,255,0))
+          grid.set_block(block,col,False)
           def two_true_false(): # function for checking random twice to reduce odds from 50% to 25%
             return utilities.random_true_or_false() and utilities.random_true_or_false()
           win_random = two_true_false() and two_true_false and utilities.random_true_or_false() # one in 32 chance
@@ -97,19 +108,26 @@ def main(): #main function
   
   factors_w = utilities.factors(width)
   factors_h = utilities.factors(height)
-  factors_common = utilities.in_both(factors_w,factors_h) # gets the common factors, which will be used to determine safe blocksizes to use for the camera zoom
+  factors_common = utilities.in_both(factors_w,factors_h) # gets the common factors of width and height, which will be used to determine safe blocksizes to use for the camera zoom
+  
+  horitzontal_minimum = width/SGW
+  vertical_minimum = height/SGH
+  block_size_minimum = max(vertical_minimum,horitzontal_minimum)
+  print(f'vert_min: {vertical_minimum}\nhori_min: {horitzontal_minimum}\nmin_size: {block_size_minimum}\n')
+  block_size_list = utilities.limit_values(factors_common,block_size_minimum)
   
   print(f'factors of {width}: {factors_w}')
   print(f'factors of {height}: {factors_h}')
   print(f'common factors: {factors_common}')
+  print(f'size list: {block_size_list}')
   
-  block_index = int(len(factors_common)/2)
-  block_size = factors_common[block_index]
+  block_index = int(len(block_size_list)/2)
+  block_size = block_size_list[block_index]
   print(block_size)
   
   def update_block_size():# updates block size so that only index needs changing
     nonlocal block_size
-    block_size = factors_common[block_index]
+    block_size = block_size_list[block_index]
   
   horizontal_blocks = int(SGW)# number of blocks in grid, defined by a global constant
   vertical_blocks = int(SGH)
@@ -152,9 +170,11 @@ def main(): #main function
   
   
   camera_buffer = pygame.Surface((width,height)) # saves the camera view so that it doesn't have to be calcuated unless necessary
+  
   def draw_camera(surf,cam_pos,blocksize,grid,pos=None,direct_value=None,is_first:bool=True): # updates camera view
     cam_x, cam_y = cam_pos
     cam_offset = (cam_x, cam_y) #literally the exact same as cam_pos idk why i made this
+    
     if pos: #only calculate a defined position to reduce total caluations and increase frame rate
       draw_area = pygame.Rect(((blocksize*(pos[0] - cam_offset[0])),(blocksize*(pos[1] - cam_offset[1]))),(blocksize,blocksize))
       block_colour = (0,0,0)
@@ -178,14 +198,15 @@ def main(): #main function
             neighbour_pos = (neighbour.pos[0],neighbour.pos[1])
             if neighbour.name == 'north' and not block_value == neighbour.value:
               pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.topright)
-            if neighbour.name == 'east' and not block_value == neighbour.value:
+            elif neighbour.name == 'east' and not block_value == neighbour.value:
               pygame.draw.line(surf,0x000000,draw_area.topright,draw_area.bottomright)
-            if neighbour.name == 'south' and not block_value == neighbour.value:
+            elif neighbour.name == 'south' and not block_value == neighbour.value:
               pygame.draw.line(surf,0x000000,draw_area.bottomleft,draw_area.bottomright)
-            if neighbour.name == 'west' and not block_value == neighbour.value:
+            elif neighbour.name == 'west' and not block_value == neighbour.value:
               pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
             if is_first:
               draw_camera(surf,cam_pos,blocksize,grid,neighbour_pos,neighbour.value,False) #calculate neighbouring blocks and their outlines
+              
     else: # draw entire camera view
       for col in range(int(camera_height)):
         for block in range(int(camera_width)): # for every block visible to camera
@@ -204,17 +225,19 @@ def main(): #main function
               if neighbour != None:
                 if neighbour.name == 'north' and not block_value == neighbour.value:
                   pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.topright)
-                if neighbour.name == 'east' and not block_value == neighbour.value:
+                elif neighbour.name == 'east' and not block_value == neighbour.value:
                   pygame.draw.line(surf,0x000000,draw_area.topright,draw_area.bottomright)
-                if neighbour.name == 'south' and not block_value == neighbour.value:
+                elif neighbour.name == 'south' and not block_value == neighbour.value:
                   pygame.draw.line(surf,0x000000,draw_area.bottomleft,draw_area.bottomright)
-                if neighbour.name == 'west' and not block_value == neighbour.value:
+                elif neighbour.name == 'west' and not block_value == neighbour.value:
                   pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
   
   
   camera_pos = (hori_blocks/2,vert_blocks/2) # set top left of camera to the middle
   
   running = True
+  set_to = False
+  
   while running:
     screen.fill(background_colour)# draw background to ensure nothing is left from previous frame
     
@@ -224,19 +247,27 @@ def main(): #main function
     cam_x, cam_y = camera_pos # get x and y values of the camera position for convenience variables
     camera_changed = False # set to true to update entire camera view
     
+    def change_block(pos):
+      colour_grid.set_block(pos[0],pos[1],set_to)
+      # place_sound = utilities.random_from_list(place_sounds)
+      # place_sound.play()
+      draw_camera(camera_buffer,camera_pos,block_size,colour_grid,pos,set_to)#redraw specific block
+    
     for event in pygame.event.get(): # handle pygame events
       if event.type == pygame.MOUSEMOTION: # when the mouse is moved
         mouse_pos = pygame.mouse.get_pos() #update the mouse position
         if mouse_down: # if the left mouse
           pos = change_pix_to_pos(mouse_pos)
           pos = (pos[0] + cam_x, pos[1] + cam_y) # get the grid position of the mouse
-          if colour_grid.get_block(pos[0],pos[1]) != set_to and not utilities.is_border(pos[0],pos[1],hori_blocks,vert_blocks):
+          border = utilities.is_border(pos[0],pos[1],hori_blocks,vert_blocks) # get whether the block is the border of the grid
+          if colour_grid.get_block(pos[0],pos[1]) != set_to and not border:
             colour_grid.set_block(pos[0],pos[1],set_to) # drag set blocks
             # place_sound = utilities.random_from_list(place_sounds)
             # place_sound.play()
             draw_camera(camera_buffer,camera_pos,block_size,colour_grid,pos,set_to)#redraw specific block
+            
       elif event.type == pygame.MOUSEBUTTONDOWN: 
-        print (f'mouse button {event.button} pressed down')
+        # print (f'mouse button {event.button} pressed down')
         if event.button == 1:#left click
           pos = change_pix_to_pos(mouse_pos)
           pos = (pos[0] + cam_x, pos[1] + cam_y) # get the grid position of the mouse
@@ -246,10 +277,7 @@ def main(): #main function
           set_to = not block_val # the value to set the block to right now and while dragging
           mouse_down = True# say the left mouse is being held down
           if not border: # change the block value if it's not a border block
-            colour_grid.set_block(pos[0],pos[1],set_to)
-            # place_sound = utilities.random_from_list(place_sounds)
-            # place_sound.play()
-            draw_camera(camera_buffer,camera_pos,block_size,colour_grid,pos,set_to)#redraw specific block
+            change_block(pos)
         elif event.button == 2:#middle click
           pass
             
@@ -268,6 +296,7 @@ def main(): #main function
             print(f'value: {checker_colour_dict[block_val]}')
           else:
             print(f'value: {block_val}')
+            
         elif event.button == 4:#scroll up
           block_index += 1 # zoom in by increasing amount of pixels on the screen each block takes up
           if block_index > len(factors_common) - 1:
@@ -275,6 +304,7 @@ def main(): #main function
           update_block_size()# update block and camera size
           update_camera_size()
           camera_changed = True # redraw camera view
+          
         elif event.button == 5:#scroll down
           block_index -= 1 # zoom out by decreasing amount of pixels on the screen each block takes up
           if block_index < 0:# prevent out of range errors
@@ -290,21 +320,27 @@ def main(): #main function
             update_block_size()
             update_camera_size()
           camera_changed = True # redraw camera view
+          
         elif event.button == 6: #back extra mouse button
           pass
+        
         elif event.button == 7: #forward extra mouse button
           pass
+        
       elif event.type == pygame.MOUSEBUTTONUP:
         if event.button == 1:# left click release
           mouse_down = False
+          
       elif event.type == pygame.KEYDOWN: # key pressed down
         if event.key == pygame.K_F5:
           save_grid(colour_grid) # save current grid to file
+          
         elif event.key == pygame.K_F6:
           colour_grid = load_grid(GRID_SAVE_FILE) # load grid from file
           total_blocks,vert_blocks = colour_grid.number_of_blocks()
           hori_blocks = int(total_blocks/vert_blocks)
           camera_changed = True# redraw camera view
+          
         elif event.key == pygame.K_o:
           outlines = not outlines # toggle outlines at borders between diferent colours
           camera_changed = True# redraw camera view 
@@ -316,6 +352,7 @@ def main(): #main function
     keys = pygame.key.get_pressed() # get pressed keys
     new_cam_x, new_cam_y = camera_pos # new camera position for moving 
     is_moving = False # tell when the camera is moving to redraw camera
+    
     if keys[pygame.K_w]: # move camera up when w pressed
       new_cam_y -= 1
       is_moving = True
@@ -349,15 +386,13 @@ def main(): #main function
       camera_pos = new_camera_pos # move the camera
       last_move = t 
       camera_changed = True # redraw the camera view
+      
     mouse_pos = pygame.mouse.get_pos() # update mouse position
-    if mouse_down:# if mouse is held down
+    if mouse_down and is_moving:# if mouse is held down while moving
       pos = change_pix_to_pos(mouse_pos)# get position of the mouse on the grid
       pos = (pos[0] + cam_x, pos[1] + cam_y)
       if colour_grid.get_block(pos[0],pos[1]) != set_to and not utilities.is_border(pos[0],pos[1],hori_blocks,vert_blocks):
-        colour_grid.set_block(pos[0],pos[1],set_to) # drag set blocks
-        # place_sound = utilities.random_from_list(place_sounds)
-        # place_sound.play()
-        draw_camera(camera_buffer,camera_pos,block_size,colour_grid,pos,set_to) # draw camera at that position
+        change_block(pos)
     
     
     if camera_changed or ticks == 0: # draw the camera when the view changed and at start
