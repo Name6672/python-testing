@@ -9,7 +9,7 @@ import gridFileParser # parser for loading grid files
 
 #BUG TRACKER
 #ALL BUGS FIXED :D
-#tho sometimes (when you zoom out too much) it's slow and it takes too long to get the neighbours of everything when the grid is created due to neighbours changing
+#tho sometimes (when you zoom out too much) it's slow
 
 #globals
 screen_size = width, height = (1200,800) # size of the screen in pixels
