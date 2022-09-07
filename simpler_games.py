@@ -1344,6 +1344,8 @@ def main():
         text_to_screen(f'glow: extra',(10,100 + 16 * 6),20)
       else:
         text_to_screen(f'glow: normal',(10,100 + 16 * 6),20)
+      true_fps = clock.get_fps() # get the fps
+      text_to_screen(f'fps: {str(round(true_fps,1))}',(10,100 + 16 * 7),20)
         
       if not paused:
         t+= dt 
