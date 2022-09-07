@@ -116,9 +116,9 @@ class BlockGrid: # grid class
   
   
 
-def save_grid(grid:BlockGrid): # save the grid to a text file
+def save_grid(grid:BlockGrid,filename='grid_saved_output.txt'): # save the grid to a text file
   hori_blocks,vert_blocks = grid.number_of_blocks()
-  with open('grid_saved_output.txt','w') as file:
+  with open(filename,'w') as file:
     lines = []
     for col in range(vert_blocks):
       line = ''
