@@ -5,6 +5,31 @@ import random
 
 #-------------------------------Utilities-------------------------------
 
+def next_in_list(li,item):
+  """gets the next item in the list"""
+  index = li.index(item) + 1
+  if index > len(li) - 1:
+    index = 0
+  return li[index] 
+
+def limit_values(li:list,lower=None,greater=None):
+  """returns a list of the values which fit within the limit paremeters. limit paremeters are inclusive and values of none will be treated as no limit"""
+  new_list = li
+  if lower != None:
+    for value in new_list:
+      if value <= lower:
+        new_list.remove(value)
+  if greater != None:
+    for value in new_list:
+      if value >= greater:
+        new_list.remove(value)
+  return new_list
+        
+
+def random_from_list(li):
+  index = random.randint(0,len(li)-1)
+  return li[index]
+
 def in_both(list_a,list_b):
   list_both = []
   for obj in list_a:
@@ -27,7 +52,7 @@ def is_border(x,y,x_max,y_max):
 
 def text_to_screen(screen, text, pos, size = 30, color = (255, 255, 255), font = 'timesnewroman',background = False):
   """
-  Print some text to a screen. Specifying size is unnecessary if you specify the font as a pygame font and not a string
+  Print text to a surface. Specifying size is unnecessary if you specify the font as a pygame font and not a string
   """
   text = str(text)
   if type(font) == str:
@@ -64,13 +89,13 @@ def to_degrees(radians):
   """
   Convert radians to degrees
   """
-  return -(radians / (3.14159))*180
+  return -(radians / (math.pi))*180
 
 def to_radians(degrees):
   """
   Covert degrees to radians
   """
-  return -(degrees / 180) * 3.14159
+  return -(degrees / 180) * math.pi
 
 def dist(p1,p2,vec = False):
   """
