@@ -48,15 +48,17 @@ class BlockGrid: # grid class
     else:
       return 0x000000 #return black as default value
     
-  def set_block(self,x,y,value): # set a block in the grid
+  def set_block(self,x,y,value,creating=False): # set a block in the grid
     """set a block in the grid at the position of (x,y) to the specified value"""
-    neighbours = self.get_neighbours(x,y)
+    if not creating:
+      neighbours = self.get_neighbours(x,y)
     self.blocks[y][x] = BlockValue(value)
-    for neighbour in neighbours:
-      if neighbour:
-        if neighbour.name in NESW:
-          pos = neighbour.pos
-          self.get_neighbours(pos[0],pos[1],True)
+    if not creating:
+      for neighbour in neighbours:
+        if neighbour:
+          if neighbour.name in NESW:
+            pos = neighbour.pos
+            self.get_neighbours(pos[0],pos[1],True)
     
   def number_of_blocks(self): # return the number of blocks in the grid
     """returns the number of blocks in a """

@@ -97,14 +97,14 @@ def main(): #main function
     for col in range(vert_blocks):
       for block in range(hori_blocks):
         if utilities.is_border(block,col,hori_blocks,vert_blocks):
-          grid.set_block(block,col,(0,0,0))
+          grid.set_block(block,col,(0,0,0),True)
         else:
-          grid.set_block(block,col,False)
+          grid.set_block(block,col,False,True)
           def two_true_false(): # function for checking random twice to reduce odds from 50% to 25%
             return utilities.random_true_or_false() and utilities.random_true_or_false()
           win_random = two_true_false() and two_true_false and utilities.random_true_or_false() # one in 32 chance
           if win_random or (two_true_false() and is_next_to_true(grid,col,block)): # makes it more likely if the block is next to a true value to make "veins" more likely
-            grid.set_block(block,col,True)
+            grid.set_block(block,col,True,True)
   
   factors_w = utilities.factors(width)
   factors_h = utilities.factors(height)
