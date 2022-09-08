@@ -1,14 +1,16 @@
+import string
 import sys # for sys.exit that's about it
 import pygame # visual engine
 import utilities # my various functions
-import math #for MATHS
+import math # for MATHS
 from blockGrid import BlockGrid # block grid class created for this program
-from blockGrid import save_grid #f function to save a grid to pre-specified file
+from blockGrid import save_grid # function to save a grid to pre-specified file
 import gridFileParser # parser for loading grid files
+import _thread # threading module for parallel processes
 
 
 #BUG TRACKER
-#ALL BUGS FIXED :D
+#ALL (known) BUGS FIXED :D
 #tho sometimes (when you zoom out too much) it's slow
 
 #globals
@@ -20,6 +22,7 @@ screen = pygame.display.set_mode(screen_size) # initialise the screen
 #constants
 GRID_SAVE_FILE = 'grid_saved_output.txt'
 STARTING_GRID_SIZE = SGW, SGH = (240,240)
+threads = [] #for ckeeping track of threads
 
 #create the clock
 clock = pygame.time.Clock()
@@ -30,6 +33,13 @@ clock = pygame.time.Clock()
 # place_sound_c = pygame.mixer.Sound('place_sound_c.wav')
 # place_sounds = [place_sound_a,place_sound_b,place_sound_c]
 
+class ThreadObject:
+  def __init__(self,id,type):
+    self.id = id
+    self.type = type
+  def terminate(self):
+    if self in threads:
+      threads.remove(self)
 
 def make_checker_board(grid:BlockGrid,border = False): #deprecated checker board function
   total_blocks,vert_blocks = grid.number_of_blocks()
@@ -51,6 +61,7 @@ def dist(pos_1,pos_2):#get the distance between two points as x and y values
 
 
 def main(): #main function
+  camera_lock = _thread.allocate_lock()
   
   colours = [
     (15,15,15),
@@ -61,6 +72,12 @@ def main(): #main function
     (175,100,100),
     (0,150,0)
   ]
+  
+  def start_thread(function,args:tuple,thread_type:string):
+    _thread.start_new_thread(function,args)
+    thr = ThreadObject(len(threads),thread_type)
+    threads.append(thr)
+    return thr
   
   def load_grid(filename:str):# calls file parser function to load file
     grid = gridFileParser.parse_file(filename)
@@ -171,7 +188,11 @@ def main(): #main function
   
   camera_buffer = pygame.Surface((width,height)) # saves the camera view so that it doesn't have to be calcuated unless necessary
   
-  def draw_camera(surf,cam_pos,blocksize,grid,pos=None,direct_value=None,is_first:bool=True): # updates camera view
+  def draw_camera(surf,cam_pos,blocksize,grid,pos=None,direct_value=None,is_first:bool=True,is_thread:bool=False): # updates camera view
+    used_lock = False
+    if is_thread:
+      camera_lock.acquire()
+      used_lock = True
     cam_x, cam_y = cam_pos
     cam_offset = (cam_x, cam_y) #literally the exact same as cam_pos idk why i made this
     
@@ -205,7 +226,8 @@ def main(): #main function
             elif neighbour.name == 'west' and not block_value == neighbour.value:
               pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
             if is_first:
-              draw_camera(surf,cam_pos,blocksize,grid,neighbour_pos,neighbour.value,False) #calculate neighbouring blocks and their outlines
+              #calculate neighbouring blocks and their outlines
+              start_thread(draw_camera,(surf,cam_pos,blocksize,grid,neighbour_pos,neighbour.value,False,True),'camera_neighbour_outline') 
               
     else: # draw entire camera view
       for col in range(int(camera_height)):
@@ -231,6 +253,8 @@ def main(): #main function
                   pygame.draw.line(surf,0x000000,draw_area.bottomleft,draw_area.bottomright)
                 elif neighbour.name == 'west' and not block_value == neighbour.value:
                   pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
+    if used_lock:
+      camera_lock.release()
   
   
   camera_pos = (hori_blocks/2,vert_blocks/2) # set top left of camera to the middle
@@ -396,7 +420,10 @@ def main(): #main function
     
     
     if camera_changed or ticks == 0: # draw the camera when the view changed and at start
-      draw_camera(camera_buffer,camera_pos,block_size,colour_grid)
+      for thr in threads:
+        if thr.type == 'camera_change':
+          thr.terminate()
+      start_thread(draw_camera,(camera_buffer,camera_pos,block_size,colour_grid,None,None,True,True),'camera_change')
     screen.blit(camera_buffer,(0,0)) # draw camera to screen
     
     true_fps = clock.get_fps() # get the fps
