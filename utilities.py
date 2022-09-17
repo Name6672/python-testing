@@ -19,10 +19,13 @@ def limit_values(li:list,lower=None,greater=None):
     for value in new_list:
       if value <= lower:
         new_list.remove(value)
+        print(f'removed {value} from list')
   if greater != None:
     for value in new_list:
       if value >= greater:
         new_list.remove(value)
+        print(f'removed {value} from list')
+  print(f'final list: {new_list}')
   return new_list
         
 
@@ -103,10 +106,10 @@ def dist(p1,p2,vec = False):
   """
   a = abs(p1[0]-p2[0])
   b = abs(p1[1] - p2[1])
-  c = math.sqrt(a+b)
   if vec:
     return Vec2d(a,b)
   else:
+    c = math.sqrt(a+b)
     return c
 
 def inc_with_limit(number,increment,limit):
