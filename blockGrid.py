@@ -1,3 +1,4 @@
+
 class Neighbour: # class for holding info about neighbouring blocks
   def __init__(self,value,name,pos):
     self.value = value
@@ -22,8 +23,8 @@ class BlockGrid: # grid class
   
   def __init__(self,hori_blocks,vert_blocks,default_value=0): # create the grid 
     self.blocks = self.create_blocks_container(hori_blocks,vert_blocks,default_value)
-    self.num_blocks = None # pre run the number of blocks function
-    self.number_of_blocks()
+    self.num_blocks = None 
+    self.number_of_blocks()# pre run the number of blocks function
     
   def create_blocks_container(self,hori:int,vert:int,value=0): # create the dictionaries for the grid
     blocks = {}
@@ -73,7 +74,17 @@ class BlockGrid: # grid class
       self.num_blocks = total, vertical
       return total,vertical
     
-  def get_neighbours(self,x,y,force_check=False): # get the neighbouring blocks and their information
+  def for_all(self,function,*args, **kwargs):
+    """Calls function for every block with x position, y position, and value as parameters, as well as any *args or **kwargs passed"""
+    total_blocks, vertical_blocks = self.number_of_blocks()
+    horizontal_blocks = round(total_blocks/vertical_blocks)
+    
+    for v in range(vertical_blocks):
+      for h in range(horizontal_blocks):
+        value = self.get_block(h,v)
+        function(h,v,value,*args,**kwargs)
+    
+  def get_neighbours(self,x,y,force_check=False,as_thread=False): # get the neighbouring blocks and their information
     total_blocks, vertical_blocks = self.num_blocks
     hori_blocks = total_blocks/vertical_blocks # get the number of blocks in the grid for value limiting
     

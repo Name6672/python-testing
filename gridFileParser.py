@@ -1,6 +1,9 @@
 from blockGrid import BlockGrid
 
-def parse_string(string:str): #turns string into aa value for the grid
+def print_block_value(x,y,value):
+  print(value)
+
+def parse_string(string:str): #turns string into a value for the grid
   if string == 'False':
     return False
   elif string == 'True':
@@ -51,7 +54,7 @@ def parse_file(filename:str): #parses the file into a grid object
       parsed_lines.append(line_strings) # add line to parsed lines
 
     rows = [] # list of each row
-    for line in parsed_lines: # parse each line into a objects
+    for line in parsed_lines: # parse each line into objects
       objects = []
       for string in line:
         obj = parse_string(string)
@@ -75,4 +78,5 @@ def parse_file(filename:str): #parses the file into a grid object
     return grid # return the grid
     
 if __name__ == '__main__': # test the parser 
-  parse_file('grid_saved_output.txt')
+  grid = parse_file('grid_saved_output.txt')
+  grid.for_all(print_block_value)

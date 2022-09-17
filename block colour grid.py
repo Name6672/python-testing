@@ -130,12 +130,12 @@ def main(): #main function
   horitzontal_minimum = width/SGW
   vertical_minimum = height/SGH
   block_size_minimum = max(vertical_minimum,horitzontal_minimum)
-  print(f'vert_min: {vertical_minimum}\nhori_min: {horitzontal_minimum}\nmin_size: {block_size_minimum}\n')
-  block_size_list = utilities.limit_values(factors_common,block_size_minimum)
-  
   print(f'factors of {width}: {factors_w}')
   print(f'factors of {height}: {factors_h}')
   print(f'common factors: {factors_common}')
+  print(f'vert_min: {vertical_minimum}\nhori_min: {horitzontal_minimum}\nmin_size: {block_size_minimum}\n')
+  block_size_list = utilities.limit_values(factors_common,block_size_minimum)
+  
   print(f'size list: {block_size_list}')
   
   block_index = int(len(block_size_list)/2)
@@ -191,7 +191,7 @@ def main(): #main function
   def draw_camera(surf,cam_pos,blocksize,grid,pos=None,direct_value=None,is_first:bool=True,is_thread:bool=False): # updates camera view
     used_lock = False
     if is_thread:
-      camera_lock.acquire()
+      camera_lock.acquire(True,1)
       used_lock = True
     cam_x, cam_y = cam_pos
     cam_offset = (cam_x, cam_y) #literally the exact same as cam_pos idk why i made this
@@ -253,7 +253,7 @@ def main(): #main function
                   pygame.draw.line(surf,0x000000,draw_area.bottomleft,draw_area.bottomright)
                 elif neighbour.name == 'west' and not block_value == neighbour.value:
                   pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
-    if used_lock:
+    if used_lock and camera_lock.locked:
       camera_lock.release()
   
   
