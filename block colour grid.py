@@ -254,7 +254,11 @@ def main(): #main function
                 elif neighbour.name == 'west' and not block_value == neighbour.value:
                   pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
     if used_lock and camera_lock.locked:
-      camera_lock.release()
+      try:
+        camera_lock.release()
+        used_lock = False
+      except:
+        pass
   
   
   camera_pos = (hori_blocks/2,vert_blocks/2) # set top left of camera to the middle
