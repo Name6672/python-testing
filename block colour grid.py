@@ -188,13 +188,19 @@ def main(): #main function
   
   camera_buffer = pygame.Surface((width,height)) # saves the camera view so that it doesn't have to be calcuated unless necessary
   
-  def draw_camera(surf,cam_pos,blocksize,grid,pos=None,direct_value=None,is_first:bool=True,is_thread:bool=False): # updates camera view
-    used_lock = False
-    if is_thread:
-      camera_lock.acquire(True,1)
-      used_lock = True
+  def draw_camera(surf,cam_pos,blocksize,grid,pos=None,direct_value=None,is_first:bool=True): # updates camera view
     cam_x, cam_y = cam_pos
     cam_offset = (cam_x, cam_y) #literally the exact same as cam_pos idk why i made this
+    def do_neighbours(neighbour,nothing):
+      if neighbour != None:
+        if neighbour.name == 'north' and not block_value == neighbour.value:
+          pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.topright)
+        elif neighbour.name == 'east' and not block_value == neighbour.value:
+          pygame.draw.line(surf,0x000000,draw_area.topright,draw_area.bottomright)
+        elif neighbour.name == 'south' and not block_value == neighbour.value:
+          pygame.draw.line(surf,0x000000,draw_area.bottomleft,draw_area.bottomright)
+        elif neighbour.name == 'west' and not block_value == neighbour.value:
+          pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
     
     if pos: #only calculate a defined position to reduce total caluations and increase frame rate
       draw_area = pygame.Rect(((blocksize*(pos[0] - cam_offset[0])),(blocksize*(pos[1] - cam_offset[1]))),(blocksize,blocksize))
@@ -227,7 +233,7 @@ def main(): #main function
               pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
             if is_first:
               #calculate neighbouring blocks and their outlines
-              start_thread(draw_camera,(surf,cam_pos,blocksize,grid,neighbour_pos,neighbour.value,False,True),'camera_neighbour_outline') 
+              draw_camera(surf,cam_pos,blocksize,grid,neighbour_pos,neighbour.value,False)
               
     else: # draw entire camera view
       for col in range(int(camera_height)):
@@ -244,21 +250,7 @@ def main(): #main function
           if outlines: # draw the outlines where diferent colours meet
             neighbours = grid.get_neighbours(block + cam_offset[0] ,col+ cam_offset[1])
             for neighbour in neighbours:
-              if neighbour != None:
-                if neighbour.name == 'north' and not block_value == neighbour.value:
-                  pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.topright)
-                elif neighbour.name == 'east' and not block_value == neighbour.value:
-                  pygame.draw.line(surf,0x000000,draw_area.topright,draw_area.bottomright)
-                elif neighbour.name == 'south' and not block_value == neighbour.value:
-                  pygame.draw.line(surf,0x000000,draw_area.bottomleft,draw_area.bottomright)
-                elif neighbour.name == 'west' and not block_value == neighbour.value:
-                  pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.bottomleft)
-    if used_lock and camera_lock.locked:
-      try:
-        camera_lock.release()
-        used_lock = False
-      except:
-        pass
+              do_neighbours(neighbour,None)
   
   
   camera_pos = (hori_blocks/2,vert_blocks/2) # set top left of camera to the middle
@@ -427,7 +419,7 @@ def main(): #main function
       for thr in threads:
         if thr.type == 'camera_change':
           thr.terminate()
-      start_thread(draw_camera,(camera_buffer,camera_pos,block_size,colour_grid,None,None,True,True),'camera_change')
+      draw_camera(camera_buffer,camera_pos,block_size,colour_grid,None,None,True)
     screen.blit(camera_buffer,(0,0)) # draw camera to screen
     
     true_fps = clock.get_fps() # get the fps
