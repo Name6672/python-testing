@@ -1,4 +1,6 @@
 
+import random
+
 class Neighbour: # class for holding info about neighbouring blocks
   def __init__(self,value,name,pos):
     self.value = value
@@ -98,6 +100,7 @@ class BlockGrid: # grid class
     x_less = x < hori_blocks-1
     y_less = y < vertical_blocks-1
     block = self.get_block(x,y,True)
+    
     if x < hori_blocks and y < vertical_blocks and x >= 0 and y >= 0: # limit value to only those in range
       if block.neighbours and not force_check:
         # print('returned saved neighbours')
@@ -144,5 +147,19 @@ def save_grid(grid:BlockGrid,filename='grid_saved_output.txt'): # save the grid 
     print('saved file')
     
 if __name__ == '__main__':
-  grid = BlockGrid(10,10)
+  
+  def print_all_func (h,v,val,*args, **kwargs):
+    print(f'({h},{v}): {val}')
+    for arg in args:
+      print(arg)
+    for kwarg in kwargs:
+      print(kwarg)
+  def assign_random(h,v,val,grid_to_assign):
+    random_num = random.randint(-1023,1023)
+    grid_to_assign.set_block(h,v,random_num)
+    
+  
+  grid = BlockGrid(87,128)
   print(grid.number_of_blocks())
+  grid.for_all(assign_random,grid)
+  grid.for_all(print_all_func)
