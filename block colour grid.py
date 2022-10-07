@@ -191,7 +191,7 @@ def main(): #main function
   def draw_camera(surf,cam_pos,blocksize,grid,pos=None,direct_value=None,is_first:bool=True): # updates camera view
     cam_x, cam_y = cam_pos
     cam_offset = (cam_x, cam_y) #literally the exact same as cam_pos idk why i made this
-    def do_neighbours(neighbour,nothing):
+    def do_neighbours(neighbour):
       if neighbour != None:
         if neighbour.name == 'north' and not block_value == neighbour.value:
           pygame.draw.line(surf,0x000000,draw_area.topleft,draw_area.topright)
@@ -250,7 +250,7 @@ def main(): #main function
           if outlines: # draw the outlines where diferent colours meet
             neighbours = grid.get_neighbours(block + cam_offset[0] ,col+ cam_offset[1])
             for neighbour in neighbours:
-              do_neighbours(neighbour,None)
+              do_neighbours(neighbour)
   
   
   camera_pos = (hori_blocks/2,vert_blocks/2) # set top left of camera to the middle
