@@ -1,9 +1,11 @@
+from tokenize import String
 import pygame
 import sys
 import random
 import math
 import bisect
 import timeit
+import _thread
 
 
 
@@ -754,7 +756,7 @@ def main():
         clock.tick(fps)
     pygame.display.set_caption('Menu')
 #---------------------------------------------------------------------------
-  def minesweeper(self):
+  def minesweeper(self) -> tuple:
     global fps
     fps = 60
     pygame.display.set_caption('Minesweeper')
@@ -777,7 +779,7 @@ def main():
 
     bombs_list = []
 
-    def make_bombs(bombs:int,unallowed:list,forced:list):
+    def make_bombs(bombs:int,unallowed:list,forced:list) -> None:
       for i in range(bombs):
         while True:
           if forced == []:
@@ -797,7 +799,7 @@ def main():
               break
 
     
-    def get_bombs_for(x,y):
+    def get_bombs_for(x,y) -> int:
       if playarea.get_value(x,y) == 1:
         return 'bomb'
       else:
@@ -810,7 +812,7 @@ def main():
                   bombs+=1
         return bombs
     
-    def check_around(x,y,include):
+    def check_around(x,y,include) -> str:
       middle = get_bombs_for(x,y)
       if middle == 'bomb' and include:
         print('that was a bomb')
@@ -1153,9 +1155,14 @@ def main():
 
     button_img = pygame.image.load('exit_button.png')
     running = True
+    
     def button_on_click(self):
       nonlocal running
       running = False
+      
+    def particle_update_threading(particle,*args):
+      if particle.update(args[0],args[1]) == 'dead':
+        particles.remove(particle)
 
     instructions = [
       '',
@@ -1353,8 +1360,7 @@ def main():
         button.update(mouse_pos)
       if not paused:
         for particle in particles:
-          if particle.update(gravity/3,dt) == 'dead':
-            particles.remove(particle)
+          _thread.start_new_thread(particle_update_threading,(particle,gravity/3,dt))
         if len(particles) > 0 and t-last_force > time_between_forces:
           particle = choose_random(particles)
           particle.apply_force((0.01,0),particle.life_left)

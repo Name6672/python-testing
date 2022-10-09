@@ -84,8 +84,8 @@ def main(): #main function
     return grid
   
   checker_colour_dict = { # dictionary to convert from true false to colours
-    True:(175,100,100),
-    False:(0,150,0)
+    True:(255,255,255),
+    False:(0,0,0)
   }
   
   def colour_blocks(surf,grid:BlockGrid):#deprecated function for drawing blocks to a surface (the screen)

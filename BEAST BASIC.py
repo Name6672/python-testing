@@ -10,7 +10,7 @@ class Operation:
     
     
 operations = [
-  Operation('for','iter',3,[0b])
+  Operation('for','iter',3,[0b00000000])
 ]
 
 def parse_to_words(filename):
