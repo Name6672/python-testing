@@ -13,16 +13,32 @@ def next_in_list(li,item):
   return li[index] 
 
 def limit_values(li:list,lower=None,greater=None):
-  """returns a list of the values which fit within the limit paremeters. limit paremeters are inclusive and values of none will be treated as no limit"""
-  new_list = li
+  """returns a list of the values which fit within the limit paremeters.
+  limit paremeters are inclusive and values of none will be treated as no limit"""
+  new_list = li.copy()
+  to_remove = []
+  print(li)
+  print(new_list)
   if lower != None:
+    index = 0
+    print(li)
+    print(new_list)
     for value in new_list:
+      print(f'{index}:{new_list[index]}')
+      if value == 2 or value == 5:
+        print (f'2 or 5 ({value})')
+      print(value)#HAH I FIXED IT
       if value <= lower:
-        new_list.remove(value)
+        to_remove.append(value)
+        print(f'removed {value} from list bc too low')
+      index += 1
   if greater != None:
     for value in new_list:
       if value >= greater:
-        new_list.remove(value)
+        to_remove.append(value)
+        print(f'removed {value} from list bc too high')
+  for value in to_remove:
+    new_list.remove(value)
   return new_list
         
 
@@ -35,6 +51,7 @@ def in_both(list_a,list_b):
   for obj in list_a:
     if obj in list_b:
       list_both.append(obj)
+      print(f"appended {obj} to both list")#debug
   return list_both
 
 def factors(x):
