@@ -27,7 +27,7 @@ def limit_values(li:list,lower=None,greater=None):
       print(f'{index}:{new_list[index]}')
       if value == 2 or value == 5:
         print (f'2 or 5 ({value})')
-      print(value)#HAH I FIXED IT
+      print(value)#HAH I FIXED ITl
       if value <= lower:
         to_remove.append(value)
         print(f'removed {value} from list bc too low')
